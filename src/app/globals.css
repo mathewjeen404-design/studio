@@ -4,74 +4,74 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 210 20% 15%;
-    --card: 210 40% 96%;
-    --card-foreground: 210 20% 15%;
-    --popover: 210 40% 96%;
-    --popover-foreground: 210 20% 15%;
+    --background: 48 33% 96%;
+    --foreground: 240 6% 22%;
+    --card: 48 25% 92%;
+    --card-foreground: 240 6% 22%;
+    --popover: 48 25% 92%;
+    --popover-foreground: 240 6% 22%;
 
-    --primary: 180 80% 30%; /* Deep Teal */
-    --primary-foreground: 180 80% 95%;
+    --primary: 195 25% 38%; /* Muted Slate Blue */
+    --primary-foreground: 195 25% 95%;
 
-    --secondary: 180 50% 94%; /* Light Cyan */
-    --secondary-foreground: 180 50% 20%;
+    --secondary: 240 5% 90%; /* Light Cool Gray */
+    --secondary-foreground: 240 5% 30%;
     
-    --muted: 210 30% 94%;
-    --muted-foreground: 210 20% 45%;
+    --muted: 240 5% 93%;
+    --muted-foreground: 240 5% 55%;
 
-    --accent: 16 100% 66%; /* Coral */
-    --accent-foreground: 16 90% 10%;
+    --accent: 38 25% 55%; /* Muted Tan/Gold */
+    --accent-foreground: 38 25% 15%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --success: 152 69% 44%;
-    --success-foreground: 152 69% 95%;
-    --border: 210 30% 88%;
-    --input: 210 30% 92%;
-    --ring: 180 80% 40%;
+    --success: 142 50% 40%;
+    --success-foreground: 142 50% 95%;
+    --border: 240 5% 88%;
+    --input: 240 5% 90%;
+    --ring: 195 25% 45%;
     
-    --chart-1: 180 80% 40%; /* primary */
-    --chart-2: 16 100% 70%; /* accent */
-    --chart-3: 190 70% 55%; /* a slightly different teal */
-    --chart-4: 152 69% 44%; /* success green */
-    --chart-5: 280 50% 60%; /* a purple to complement */
+    --chart-1: 195 25% 38%; /* primary */
+    --chart-2: 38 25% 55%; /* accent */
+    --chart-3: 190 20% 50%; /* another muted blue/teal */
+    --chart-4: 142 50% 40%; /* success green */
+    --chart-5: 30 20% 50%; /* a muted brown/orange */
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 215 30% 12%;
-    --foreground: 215 20% 90%;
-    --card: 215 30% 16%;
-    --card-foreground: 215 20% 90%;
-    --popover: 215 30% 12%;
-    --popover-foreground: 215 20% 90%;
+    --background: 240 6% 12%;
+    --foreground: 240 5% 83%;
+    --card: 240 6% 16%;
+    --card-foreground: 240 5% 83%;
+    --popover: 240 6% 12%;
+    --popover-foreground: 240 5% 83%;
     
-    --primary: 180 70% 60%;
-    --primary-foreground: 180 70% 5%;
+    --primary: 195 30% 70%;
+    --primary-foreground: 195 30% 10%;
 
-    --secondary: 180 35% 25%;
-    --secondary-foreground: 180 35% 80%;
+    --secondary: 240 5% 24%;
+    --secondary-foreground: 240 5% 75%;
     
-    --muted: 210 25% 20%;
-    --muted-foreground: 210 20% 65%;
+    --muted: 240 5% 20%;
+    --muted-foreground: 240 5% 60%;
 
-    --accent: 16 100% 70%;
-    --accent-foreground: 16 90% 10%;
+    --accent: 38 30% 65%;
+    --accent-foreground: 38 30% 10%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 63% 50%;
     --destructive-foreground: 0 0% 98%;
-    --success: 152 60% 40%;
-    --success-foreground: 152 60% 95%;
-    --border: 210 25% 30%;
-    --input: 210 25% 22%;
-    --ring: 180 70% 60%;
+    --success: 142 40% 45%;
+    --success-foreground: 142 40% 95%;
+    --border: 240 5% 25%;
+    --input: 240 5% 22%;
+    --ring: 195 30% 70%;
 
-    --chart-1: 180 70% 60%;
-    --chart-2: 16 100% 70%;
-    --chart-3: 190 70% 60%;
-    --chart-4: 152 60% 50%;
-    --chart-5: 280 60% 65%;
+    --chart-1: 195 30% 70%;
+    --chart-2: 38 30% 65%;
+    --chart-3: 190 25% 60%;
+    --chart-4: 142 40% 45%;
+    --chart-5: 30 25% 60%;
   }
 }
 
@@ -81,7 +81,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(circle at top left, hsl(var(--primary) / 0.05), transparent 30%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.05), transparent 30%);
+    background-image: radial-gradient(circle at top left, hsl(var(--primary) / 0.03), transparent 30%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.03), transparent 30%);
     background-attachment: fixed;
   }
 }
