@@ -32,18 +32,6 @@ const FINGER_COLORS: { [key in FingerName]: string } = {
     'right-pinky': 'bg-chart-1/10',
 };
 
-const FINGER_TIP_COLORS: { [key in FingerName]: string } = {
-    'left-pinky': 'bg-chart-1/70 border-chart-1',
-    'left-ring': 'bg-chart-2/70 border-chart-2',
-    'left-middle': 'bg-chart-3/70 border-chart-3',
-    'left-index': 'bg-chart-4/70 border-chart-4',
-    'thumb': 'bg-muted-foreground/40 border-muted-foreground',
-    'right-index': 'bg-chart-4/70 border-chart-4',
-    'right-middle': 'bg-chart-3/70 border-chart-3',
-    'right-ring': 'bg-chart-2/70 border-chart-2',
-    'right-pinky': 'bg-chart-1/70 border-chart-1',
-};
-
 
 const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
     'KeyA': 'left-pinky',
@@ -58,13 +46,72 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 }
 
 
-const FingerTip = ({ finger, isHighlighted }: { finger: FingerName, isHighlighted: boolean}) => (
-    <div className={cn(
-        "absolute -top-3 w-6 h-8 rounded-b-full border-2 transition-all duration-100",
-        FINGER_TIP_COLORS[finger],
-        isHighlighted && "scale-110 border-accent/80 ring-2 ring-accent bg-accent/30"
-    )} />
-)
+const Finger = ({ finger, isHighlighted }: { finger: FingerName; isHighlighted: boolean }) => {
+    const fingerColorMap: { [key in FingerName]: string } = {
+        'left-pinky': 'hsl(var(--chart-1))',
+        'left-ring': 'hsl(var(--chart-2))',
+        'left-middle': 'hsl(var(--chart-3))',
+        'left-index': 'hsl(var(--chart-4))',
+        'thumb': 'hsl(var(--muted-foreground))',
+        'right-index': 'hsl(var(--chart-4))',
+        'right-middle': 'hsl(var(--chart-3))',
+        'right-ring': 'hsl(var(--chart-2))',
+        'right-pinky': 'hsl(var(--chart-1))',
+    };
+
+    const transform: { [key in FingerName]?: string } = {
+        'left-pinky': 'rotate(-20deg)',
+        'left-ring': 'rotate(-10deg)',
+        'left-middle': 'rotate(0deg)',
+        'left-index': 'rotate(10deg)',
+        'thumb': 'rotate(60deg) scale(0.8)',
+        'right-index': 'rotate(-10deg) scale(-1, 1)',
+        'right-middle': 'rotate(0deg) scale(-1, 1)',
+        'right-ring': 'rotate(10deg) scale(-1, 1)',
+        'right-pinky': 'rotate(20deg) scale(-1, 1)',
+    };
+
+    const position: { [key in FingerName]?: string } = {
+        'left-pinky': '-top-7 left-1',
+        'left-ring': '-top-8 left-0',
+        'left-middle': '-top-9 left-0',
+        'left-index': '-top-8 left-0',
+        'thumb': '-top-4 left-4',
+        'right-index': '-top-8 right-0',
+        'right-middle': '-top-9 right-0',
+        'right-ring': '-top-8 right-0',
+        'right-pinky': '-top-7 right-1',
+    }
+
+    const color = fingerColorMap[finger];
+
+    return (
+        <div className={cn('absolute w-8 h-16 pointer-events-none z-10', position[finger])}
+            style={{ transform: transform[finger] }}
+        >
+            <svg
+                viewBox="0 0 40 80"
+                className={cn(
+                    'w-full h-full transition-all duration-150 drop-shadow-lg',
+                    isHighlighted && "scale-110 opacity-100 drop-shadow-[0_0_10px_hsl(var(--accent))] -translate-y-1"
+                )}
+            >
+                <path
+                    d="M20,80 C31.045695,80 40,71.045695 40,60 L40,20 C40,8.954305 31.045695,0 20,0 C8.954305,0 0,8.954305 0,20 L0,60 C0,71.045695 8.954305,80 20,80 Z"
+                    fill={isHighlighted ? 'hsl(var(--accent))' : color}
+                    stroke="hsl(var(--foreground))"
+                    strokeWidth="1.5"
+                    strokeOpacity="0.1"
+                />
+                <path
+                    d="M30,20 C30,14.4771525 25.5228475,10 20,10 C14.4771525,10 10,14.4771525 10,20 L10,30 L30,30 L30,20 Z"
+                    fill="white"
+                    fillOpacity={isHighlighted ? "0.5" : "0.2"}
+                />
+            </svg>
+        </div>
+    );
+};
 
 
 const Key = ({
@@ -114,7 +161,7 @@ const Key = ({
         className
       )}
     >
-      {homeRowFinger && <FingerTip finger={homeRowFinger} isHighlighted={!!isFingerHighlighted} />}
+      {homeRowFinger && <Finger finger={homeRowFinger} isHighlighted={!!isFingerHighlighted} />}
       <span className={cn(homeRowFinger && 'mt-2')}>{display}</span>
     </div>
   );
@@ -141,7 +188,7 @@ export default function VirtualKeyboard({
             {row.map((keyCode) => {
               let className = 'flex-1';
               if (['Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight'].includes(keyCode)) className = 'flex-[1.5]';
-              if (keyCode === 'CapsLock') className = 'flex-[1.7]';
+              if (keyCode === 'CapsLock') className = 'flex-[1.T]';
               if (keyCode === 'Space') className = 'flex-[5]';
 
               return <Key 
