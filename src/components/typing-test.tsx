@@ -39,6 +39,8 @@ export default function TypingTest() {
   const [mode, setMode] = useState('words');
   const [timeLeft, setTimeLeft] = useState(testDuration);
   const [errors, setErrors] = useState(0);
+  const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [testFinished, setTestFinished] = useState(false);
@@ -47,6 +49,8 @@ export default function TypingTest() {
 
   const timerInterval = useRef<NodeJS.Timeout | null>(null);
   const textDisplayRef = useRef<HTMLDivElement>(null);
+  
+  const showFingerZones = stats.onboarding?.level === 'beginner';
 
   const resetTest = useCallback(() => {
     if (timerInterval.current) {
@@ -57,6 +61,8 @@ export default function TypingTest() {
     setStartTime(null);
     setTimeLeft(testDuration);
     setErrors(0);
+    setConsecutiveErrors(0);
+    setIsShaking(false);
     setWpm(0);
     setAccuracy(100);
     setTestFinished(false);
@@ -134,6 +140,16 @@ export default function TypingTest() {
       }
     };
   }, [startTime, testFinished, testDuration, typed, text, endTest, mode]);
+
+  useEffect(() => {
+    if (consecutiveErrors >= 3) {
+      setIsShaking(true);
+      const shakeTimer = setTimeout(() => {
+        setIsShaking(false);
+      }, 820);
+      return () => clearTimeout(shakeTimer);
+    }
+  }, [consecutiveErrors]);
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (mode === 'code' && e.key === 'Tab') {
@@ -161,6 +177,9 @@ export default function TypingTest() {
       const isCorrect = key === text[typed.length];
       if (!isCorrect) {
         setErrors(prev => prev + 1);
+        setConsecutiveErrors(prev => prev + 1);
+      } else {
+        setConsecutiveErrors(0);
       }
       setCharLogs(prev => [...prev, { char: text[typed.length], time: charTime, state: isCorrect ? 'correct' : 'incorrect' }]);
       setTyped(prev => prev + key);
@@ -173,6 +192,7 @@ export default function TypingTest() {
             setCharLogs([...charLogs, correctedLog]);
         }
       }
+      setConsecutiveErrors(0);
     }
   }, [typed, text, startTime, testFinished, charLogs, lastCharTime, mode]);
 
@@ -253,7 +273,8 @@ export default function TypingTest() {
       <div
         ref={textDisplayRef}
         className={cn("relative text-2xl md:text-3xl leading-relaxed tracking-wider p-4 md:p-8 bg-card border rounded-lg max-h-[17rem] overflow-auto focus:outline-none",
-            mode === 'code' ? 'font-code whitespace-pre-wrap text-lg' : 'font-mono'
+            mode === 'code' ? 'font-code whitespace-pre-wrap text-lg' : 'font-mono',
+            isShaking && 'animate-shake'
         )}
         tabIndex={0}
       >
@@ -267,18 +288,18 @@ export default function TypingTest() {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-success': isCorrect,
+                'text-primary-foreground drop-shadow-[0_0_4px_hsl(var(--primary))]': isCorrect,
                 'text-destructive': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
               })}
             >
-              {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-primary animate-pulse rounded-full" />}
+              {isCurrent && <span className="cursor absolute -left-[1px] top-0 bottom-0 w-[2px] bg-primary animate-pulse rounded-full" />}
               {char === ' ' && isIncorrect ? <span className='bg-destructive/50 rounded-[3px]'>{char}</span> : char}
             </span>
           );
         })}
       </div>
-      <VirtualKeyboard pressedKey={pressedKey} fingerZones={true} targetKey={text[typed.length]} />
+      <VirtualKeyboard pressedKey={pressedKey} fingerZones={showFingerZones} targetKey={text[typed.length]} />
     </div>
   );
 }

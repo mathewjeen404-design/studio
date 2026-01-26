@@ -1,8 +1,8 @@
-
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { KEY_TO_FINGER_MAP } from '@/lib/key-map';
-import type { FingerName } from '@/lib/types';
+import type { FingerName, KeyStat } from '@/lib/types';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 const keyLayout = [
   ['Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'Backspace'],
@@ -35,9 +35,9 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 
 const fingerDimensions: { [key: string]: { w: number; h: number } } = {
   pinky: { w: 20, h: 33 },
-  ring: { w: 22, h: 39 },
-  middle: { w: 24, h: 43 },
-  index: { w: 23, h: 41 },
+  ring: { w: 23, h: 42 },
+  middle: { w: 25, h: 46 },
+  index: { w: 24, h: 44 },
   thumb: { w: 30, h: 28 },
 };
 
@@ -98,17 +98,17 @@ const Key = ({
   fingerZones,
   className = '',
   targetFinger,
-  heatmapColor,
+  keyData,
 }: {
   keyCode: string;
   display: string;
-  pressedKey: string | null;
+  pressedKey?: string | null;
   highlightKeys?: string[];
   targetKey?: string | null;
   fingerZones?: boolean;
   className?: string;
   targetFinger?: FingerName | null;
-  heatmapColor?: string;
+  keyData?: { color: string; stats: KeyStat | null };
 }) => {
   const isPressed = pressedKey === keyCode;
   const char = display.toLowerCase();
@@ -122,23 +122,41 @@ const Key = ({
 
   const homeRowFinger = fingerZones ? HOME_ROW_FINGERS[keyCode] : null;
   const isFingerHighlighted = homeRowFinger && targetFinger === homeRowFinger;
-
-  return (
+  
+  const keyContent = (
     <div
       className={cn(
         'relative h-10 md:h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
         'border-primary/20',
         isHighlight && !isTarget && 'bg-primary/20 border-primary/50',
-        isTarget && 'bg-primary text-primary-foreground scale-110 border-primary',
+        isTarget && 'bg-primary text-primary-foreground scale-110 border-primary shadow-[0_0_12px_hsl(var(--primary))]',
         isPressed ? 'translate-y-0.5 border-b-2 bg-primary text-primary-foreground' : 'hover:bg-primary/20',
         className
       )}
-      style={{ backgroundColor: heatmapColor }}
+      style={{ backgroundColor: keyData?.color }}
     >
       {homeRowFinger && <Finger finger={homeRowFinger} isHighlighted={!!isFingerHighlighted} />}
       <span className={cn('text-xs md:text-base', homeRowFinger && 'mt-2')}>{display}</span>
     </div>
   );
+
+  if (keyData?.stats) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{keyContent}</TooltipTrigger>
+        <TooltipContent>
+            <div className="flex flex-col gap-1 text-center">
+                <p className="font-bold text-lg">{keyData.stats.char.toUpperCase()}</p>
+                <p>Errors: <span className="font-semibold">{keyData.stats.errors}</span></p>
+                <p>Error Rate: <span className="font-semibold">{(keyData.stats.errorRate * 100).toFixed(1)}%</span></p>
+                <p>Avg Time: <span className="font-semibold">{keyData.stats.avgTime.toFixed(0)}ms</span></p>
+            </div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return keyContent;
 };
 
 export default function VirtualKeyboard({ 
@@ -146,13 +164,13 @@ export default function VirtualKeyboard({
     highlightKeys,
     targetKey,
     fingerZones = false,
-    keyColors
+    keyData
 }: { 
     pressedKey: string | null;
     highlightKeys?: string[];
     targetKey?: string | null;
     fingerZones?: boolean;
-    keyColors?: { [keyCode: string]: string };
+    keyData?: { [keyCode: string]: { color: string; stats: KeyStat | null } };
 }) {
   const targetFinger: FingerName | null = targetKey ? KEY_TO_FINGER_MAP[targetKey.toLowerCase()]?.finger ?? null : null;
 
@@ -177,7 +195,7 @@ export default function VirtualKeyboard({
                 fingerZones={fingerZones}
                 className={className} 
                 targetFinger={targetFinger}
-                heatmapColor={keyColors?.[keyCode]}
+                keyData={keyData?.[keyCode]}
               />;
             })}
           </div>

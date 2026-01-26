@@ -3,8 +3,6 @@
  * @fileOverview An AI typing coach that provides personalized feedback and drills.
  *
  * - getCoachingTip - A function that analyzes user stats and returns a coaching tip.
- * - CoachingInput - The input type for the getCoachingTip function.
- * - CoachingOutput - The return type for the getCoachingTip function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -20,7 +18,7 @@ const CoachingInputSchema = z.object({
 type CoachingInput = z.infer<typeof CoachingInputSchema>;
 
 const CoachingOutputSchema = z.object({
-  feedback: z.string().describe("A short, encouraging, and personalized paragraph of feedback for the user (2-3 sentences max). Address the user directly."),
+  feedback: z.string().describe("A short, encouraging, and personalized paragraph of feedback for the user (2-3 sentences max). Address the user directly with a motivational, coaching-oriented tone. Start with a positive reinforcement, then gently introduce the area for improvement."),
   drill: z.string().describe("A custom-generated practice text (around 20-30 words) that specifically targets the user's weak keys and fingers. It should be a coherent sentence or two."),
 });
 type CoachingOutput = z.infer<typeof CoachingOutputSchema>;
@@ -29,7 +27,8 @@ const coachingPrompt = ai.definePrompt({
     name: 'coachingPrompt',
     input: { schema: CoachingInputSchema },
     output: { schema: CoachingOutputSchema },
-    prompt: `You are an expert typing coach named 'Verse'. Your tone is encouraging, insightful, and friendly.
+    prompt: `You are 'Verse', an expert typing coach. Your tone is always encouraging, insightful, and human. You are here to build confidence and guide the user to improvement, not to criticize.
+
 A user has the following typing profile:
 - Average Speed: {{overallWpm}} WPM
 - Average Accuracy: {{overallAccuracy}}%
@@ -37,7 +36,9 @@ A user has the following typing profile:
 - Weakest Finger: {{weakestFinger}}
 - Most Mistyped Keys: {{#each topMistypedKeys}}{{{this}}}{{/each}}
 
-Based on this, provide a short paragraph of personalized feedback. Focus on their biggest area for improvement. Then, create a custom practice drill that targets their specific weak keys. The drill should be a normal-sounding sentence or two, not just a random string of the weak keys.
+Based on this, provide a short paragraph of personalized, coaching-style feedback. Start with something positive about their strengths before pointing out their biggest area for improvement in a gentle, constructive way. For example: "You've got some great speed developing! To make your typing even smoother, let's focus on..."
+
+Then, create a custom practice drill. The drill should be a normal-sounding sentence or two that naturally incorporates their specific weak keys, helping them practice in a real-world context.
 `,
   });
 

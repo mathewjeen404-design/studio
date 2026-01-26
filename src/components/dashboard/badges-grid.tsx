@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Flame, Gem, Rocket, ShieldCheck, Star, Zap, Medal, Code } from 'lucide-react';
+import { Award, Flame, Gem, Rocket, ShieldCheck, Star, Zap, Medal, Code, Activity, Coffee, Target } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -12,88 +12,88 @@ import { useTypingStats } from '@/hooks/use-typing-stats';
 
 const allBadges = [
   {
-    id: 'speed-demon',
+    id: 'speed-breaker-50',
+    icon: Rocket,
+    title: 'Speed Breaker (50 WPM)',
+    description: 'Achieve over 50 WPM in any test.',
+    isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 50,
+  },
+  {
+    id: 'speed-breaker-75',
     icon: Zap,
-    title: 'Speed Demon',
-    description: 'Achieve over 100 WPM in a test.',
+    title: 'Speed Breaker (75 WPM)',
+    description: 'Achieve over 75 WPM in any test.',
+    isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 75,
+  },
+   {
+    id: 'speed-breaker-100',
+    icon: Flame,
+    title: 'Speed Breaker (100 WPM)',
+    description: 'Achieve over 100 WPM in any test.',
     isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 100,
   },
   {
-    id: 'accuracy-master',
+    id: 'accuracy-champion-98',
     icon: ShieldCheck,
-    title: 'Accuracy Master',
-    description: 'Achieve 100% accuracy in a test.',
+    title: 'Accuracy Champion (98%)',
+    description: 'Achieve over 98% accuracy on a 60s+ test.',
+    isAchieved: (stats: any) => stats.sessions.some((s: any) => s.accuracy >= 98 && s.time >= 60),
+  },
+  {
+    id: 'accuracy-champion-100',
+    icon: Target,
+    title: 'Zero Error Run',
+    description: 'Complete any test with 100% accuracy.',
     isAchieved: (stats: any) => stats.sessions.some((s: any) => s.accuracy === 100),
   },
   {
-    id: 'consistent-coder',
-    icon: Star,
-    title: 'Consistent Coder',
-    description: 'Complete 10 typing tests.',
-    isAchieved: (stats: any) => stats.totalTests >= 10,
+    id: 'consistency-king',
+    icon: Activity,
+    title: 'Consistency King',
+    description: 'Achieve a consistency score of 90% or higher.',
+    isAchieved: (stats: any) => stats.consistency >= 90,
   },
   {
-    id: 'warp-speed',
-    icon: Rocket,
-    title: 'Warp Speed',
-    description: 'Achieve over 150 WPM.',
-    isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 150,
-  },
-  {
-    id: 'typing-veteran',
+    id: 'home-row-master',
     icon: Award,
-    title: 'Typing Veteran',
+    title: 'Home Row Master',
+    description: 'Complete the home row curriculum (Level 3).',
+    isAchieved: (stats: any) => stats.unlockedLevel > 3,
+  },
+  {
+    id: 'typing-veteran-25',
+    icon: Medal,
+    title: 'Typing Veteran (25)',
+    description: 'Complete 25 typing tests.',
+    isAchieved: (stats: any) => stats.totalTests >= 25,
+  },
+  {
+    id: 'typing-veteran-100',
+    icon: Star,
+    title: 'Typing Veteran (100)',
     description: 'Complete 100 typing tests.',
     isAchieved: (stats: any) => stats.totalTests >= 100,
   },
   {
-    id: 'streak-starter',
+    id: 'streak-active-3',
     icon: Flame,
-    title: 'Streak Starter',
-    description: 'Maintain a 3-day streak.',
+    title: '3-Day Streak',
+    description: 'Maintain a 3-day practice streak.',
     isAchieved: (stats: any) => stats.longestStreak >= 3,
   },
   {
-    id: 'adept-typist',
-    icon: Gem,
-    title: 'Adept Typist',
-    description: 'Reach Level 10.',
-    isAchieved: (stats: any) => stats.level >= 10,
-  },
-  {
-    id: 'cert-wpm-40',
-    icon: Medal,
-    title: 'Certified 40 WPM',
-    description: 'Achieve 40 WPM with >95% accuracy in a 60s+ test.',
-    isAchieved: (stats: any) => stats.certifications.wpm40,
-  },
-  {
-    id: 'cert-wpm-60',
-    icon: Medal,
-    title: 'Certified 60 WPM',
-    description: 'Achieve 60 WPM with >95% accuracy in a 60s+ test.',
-    isAchieved: (stats: any) => stats.certifications.wpm60,
-  },
-    {
-    id: 'cert-wpm-80',
-    icon: Medal,
-    title: 'Certified 80 WPM',
-    description: 'Achieve 80 WPM with >95% accuracy in a 60s+ test.',
-    isAchieved: (stats: any) => stats.certifications.wpm80,
-  },
-  {
-    id: 'cert-accuracy',
-    icon: ShieldCheck,
-    title: 'Accuracy Professional',
-    description: 'Achieve 98% accuracy in a 60s+ test.',
-    isAchieved: (stats: any) => stats.certifications.accuracyPro,
-  },
-  {
-    id: 'cert-code',
+    id: 'code-specialist',
     icon: Code,
-    title: 'Code Typing Specialist',
+    title: 'Code Specialist',
     description: 'Pass a code test with >40 WPM and >96% accuracy.',
     isAchieved: (stats: any) => stats.certifications.codeSpecialist,
+  },
+  {
+    id: 'marathoner',
+    icon: Coffee,
+    title: 'Marathoner',
+    description: 'Complete a 120-second test.',
+    isAchieved: (stats: any) => stats.sessions.some((s: any) => s.time === 120),
   },
 ];
 
@@ -113,10 +113,10 @@ export function BadgesGrid() {
             <TooltipTrigger asChild>
               <div
                 className={cn(
-                  'aspect-square flex items-center justify-center rounded-lg border-2 p-4 transition-all',
+                  'aspect-square flex items-center justify-center rounded-lg border-2 p-4 transition-all duration-300',
                   badge.achieved
                     ? 'border-accent/80 bg-accent/10 text-accent'
-                    : 'border-dashed border-muted-foreground/30 bg-muted/30 text-muted-foreground'
+                    : 'border-dashed border-muted-foreground/30 bg-muted/30 text-muted-foreground opacity-60'
                 )}
               >
                 <badge.icon
