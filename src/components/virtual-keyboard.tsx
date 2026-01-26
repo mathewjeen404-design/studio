@@ -34,11 +34,11 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 }
 
 const fingerDimensions: { [key: string]: { w: number; h: number } } = {
-  pinky: { w: 22, h: 34 },
-  ring: { w: 24, h: 40 },
-  middle: { w: 25, h: 44 },
-  index: { w: 25, h: 42 },
-  thumb: { w: 32, h: 30 },
+  pinky: { w: 20, h: 33 },
+  ring: { w: 22, h: 39 },
+  middle: { w: 24, h: 43 },
+  index: { w: 23, h: 41 },
+  thumb: { w: 30, h: 28 },
 };
 
 const Finger = ({ finger, isHighlighted }: { finger: FingerName; isHighlighted: boolean }) => {
