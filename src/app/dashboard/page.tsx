@@ -6,6 +6,7 @@ import { BadgesGrid } from '@/components/dashboard/badges-grid';
 import { HandPerformanceChart } from '@/components/dashboard/hand-performance-chart';
 import { FingerPerformanceChart } from '@/components/dashboard/finger-performance-chart';
 import { MistypedKeysChart } from '@/components/dashboard/mistyped-keys-chart';
+import { AiCoachCard } from '@/components/dashboard/ai-coach-card';
 import { Activity, Fingerprint, Hand, Trophy, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -32,6 +33,7 @@ export default function DashboardPage() {
               </Card>
             </div>
             <div className="lg:col-span-2 space-y-8">
+              <AiCoachCard />
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -47,17 +49,6 @@ export default function DashboardPage() {
                  <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <AlertCircle size={24} />
-                      <span>Most Mistyped Keys</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <MistypedKeysChart />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
                       <Hand size={24} />
                       <span>Hand Performance</span>
                     </CardTitle>
@@ -66,8 +57,7 @@ export default function DashboardPage() {
                     <HandPerformanceChart />
                   </CardContent>
                 </Card>
-              </div>
-                <Card>
+                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Fingerprint size={24} />
@@ -78,6 +68,18 @@ export default function DashboardPage() {
                     <FingerPerformanceChart />
                   </CardContent>
                 </Card>
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertCircle size={24} />
+                      <span>Most Mistyped Keys</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <MistypedKeysChart />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
