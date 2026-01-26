@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Keyboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function Header() {
   return (
@@ -47,6 +48,9 @@ export function Header() {
               </Link>
             </Button>
           </nav>
+        </div>
+        <div className="flex flex-1 items-center justify-end">
+            <ThemeToggle />
         </div>
       </div>
     </header>
