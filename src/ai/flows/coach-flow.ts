@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const CoachingInputSchema = z.object({
+const CoachingInputSchema = z.object({
   overallWpm: z.number().describe("The user's average words per minute."),
   overallAccuracy: z.number().describe("The user's average accuracy percentage."),
   consistency: z.number().describe("The user's typing rhythm consistency score."),
@@ -19,7 +19,7 @@ export const CoachingInputSchema = z.object({
 });
 export type CoachingInput = z.infer<typeof CoachingInputSchema>;
 
-export const CoachingOutputSchema = z.object({
+const CoachingOutputSchema = z.object({
   feedback: z.string().describe("A short, encouraging, and personalized paragraph of feedback for the user (2-3 sentences max). Address the user directly."),
   drill: z.string().describe("A custom-generated practice text (around 20-30 words) that specifically targets the user's weak keys and fingers. It should be a coherent sentence or two."),
 });
