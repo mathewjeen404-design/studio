@@ -35,14 +35,12 @@ export function CurriculumMap() {
                 </CardTitle>
                 <CardDescription>{level.description}</CardDescription>
               </div>
-              <Link href={`/lessons/${level.level}`} passHref legacyBehavior>
-                <Button asChild disabled={!isUnlocked} className="w-full sm:w-auto">
-                  <a>
+              <Button asChild disabled={!isUnlocked} className="w-full sm:w-auto">
+                <Link href={`/lessons/${level.level}`}>
                     {isCompleted ? 'Review' : 'Start'}
                     <Play className="ml-2 h-4 w-4" />
-                  </a>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
