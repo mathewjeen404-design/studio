@@ -10,7 +10,13 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
 
     try {
       const item = window.localStorage.getItem(key);
-      return item ? (JSON.parse(item) as T) : initialValue;
+      const stored = item ? JSON.parse(item) : null;
+      // Merge stored value with initial value to ensure all keys are present
+      // This handles cases where the data structure has changed.
+      if (typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue)) {
+        return { ...initialValue, ...stored };
+      }
+      return stored !== null ? stored : initialValue;
     } catch (error) {
       console.warn(`Error reading localStorage key “${key}”:`, error);
       return initialValue;
