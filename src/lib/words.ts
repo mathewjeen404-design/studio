@@ -33,5 +33,14 @@ export const words = [
   'serve', 'die', 'send', 'expect', 'build', 'stay', 'fall', 'cut', 'reach',
   'kill', 'remain', 'suggest', 'raise', 'pass', 'sell', 'require', 'report',
   'decide', 'pull', 'code', 'keyboard', 'developer', 'software', 'project',
-  'interface', 'design', 'style', 'component', 'function', 'variable', 'array'
+  'interface', 'design', 'style', 'component', 'function', 'variable', 'array',
+  'algorithm', 'database', 'network', 'security', 'framework', 'library', 'class',
+  'object', 'property', 'method', 'argument', 'parameter', 'return', 'boolean',
+  'string', 'number', 'integer', 'float', 'null', 'undefined', 'promise', 'async',
+  'await', 'callback', 'error', 'exception', 'debug', 'test', 'deploy', 'version',
+  'control', 'git', 'commit', 'branch', 'merge', 'pull', 'push', 'remote', 'origin',
+  'html', 'css', 'javascript', 'typescript', 'react', 'angular', 'vue', 'node',
+  'server', 'client', 'frontend', 'backend', 'fullstack', 'api', 'rest', 'graphql',
+  'json', 'xml', 'yaml', 'docker', 'kubernetes', 'cloud', 'aws', 'azure', 'gcp',
+  'agile', 'scrum', 'sprint', 'user', 'story', 'epic', 'task', 'bug', 'feature'
 ];

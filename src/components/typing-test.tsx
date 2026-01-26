@@ -3,13 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Timer } from 'lucide-react';
-import { words } from '@/lib/words';
-import type { TestResult } from '@/lib/types';
+import type { TestResult, CharLog } from '@/lib/types';
 import Stats from '@/components/stats';
 import ResultsCard from '@/components/results-card';
 import VirtualKeyboard from '@/components/virtual-keyboard';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import {
   Select,
   SelectContent,
@@ -18,19 +16,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import { useTypingStats } from '@/hooks/use-typing-stats';
 
 const TEST_DURATIONS = [15, 30, 60, 120];
-const WORD_COUNT = 50;
-
-function generateWords(count: number) {
-  return Array.from({ length: count }, () =>
-    words[Math.floor(Math.random() * words.length)]
-  ).join(' ');
-}
 
 export default function TypingTest() {
+  const { stats, getNewTestText, saveTestResult } = useTypingStats();
+  
   const [text, setText] = useState('');
   const [typed, setTyped] = useState('');
+  const [charLogs, setCharLogs] = useState<CharLog[]>([]);
+  const [lastCharTime, setLastCharTime] = useState<number | null>(null);
+  
   const [startTime, setStartTime] = useState<number | null>(null);
   const [testDuration, setTestDuration] = useState(60);
   const [timeLeft, setTimeLeft] = useState(testDuration);
@@ -43,13 +40,12 @@ export default function TypingTest() {
 
   const timerInterval = useRef<NodeJS.Timeout | null>(null);
   const textDisplayRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
   const resetTest = useCallback(() => {
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
     }
-    setText(generateWords(WORD_COUNT));
+    setText(getNewTestText());
     setTyped('');
     setStartTime(null);
     setTimeLeft(testDuration);
@@ -59,11 +55,40 @@ export default function TypingTest() {
     setTestFinished(false);
     setResult(null);
     setPressedKey(null);
-  }, [testDuration]);
+    setCharLogs([]);
+    setLastCharTime(null);
+  }, [testDuration, getNewTestText]);
 
   useEffect(() => {
     resetTest();
   }, [resetTest]);
+
+  const endTest = useCallback(() => {
+    if (timerInterval.current) clearInterval(timerInterval.current);
+    if (!startTime) return;
+
+    setTestFinished(true);
+    const elapsedTime = (Date.now() - startTime) / 1000;
+    const correctChars = typed.split('').filter((char, index) => char === text[index]).length;
+    const grossTyped = typed.length;
+    
+    const finalWpm = (correctChars / 5) / (Math.min(elapsedTime, testDuration) / 60);
+    const rawWpm = (grossTyped / 5) / (Math.min(elapsedTime, testDuration) / 60);
+    const finalAccuracy = grossTyped > 0 ? (correctChars / grossTyped) * 100 : 100;
+    
+    const finalResult: TestResult = {
+      wpm: Math.round(finalWpm),
+      rawWpm: Math.round(rawWpm),
+      accuracy: Math.round(finalAccuracy),
+      errors,
+      time: testDuration,
+      charLogs,
+    };
+    setResult(finalResult);
+    saveTestResult(finalResult);
+    setWpm(finalResult.wpm);
+    setAccuracy(finalResult.accuracy);
+  }, [startTime, typed, text, errors, testDuration, charLogs, saveTestResult]);
 
   useEffect(() => {
     if (startTime && !testFinished) {
@@ -72,16 +97,15 @@ export default function TypingTest() {
         const newTimeLeft = Math.max(0, testDuration - elapsedTime);
         setTimeLeft(Math.round(newTimeLeft));
 
-        const typedChars = typed.length;
-        const correctChars = typed.split('').filter((char, index) => char === text[index]).length;
-        
-        const currentWpm = elapsedTime > 0 ? (correctChars / 5) / (elapsedTime / 60) : 0;
+        const grossTyped = typed.length;
+        const currentWpm = elapsedTime > 0 ? (grossTyped / 5) / (elapsedTime / 60) : 0;
         setWpm(Math.round(currentWpm));
         
-        const currentAccuracy = typedChars > 0 ? (correctChars / typedChars) * 100 : 100;
+        const correctChars = typed.split('').filter((char, i) => char === text[i]).length;
+        const currentAccuracy = grossTyped > 0 ? (correctChars / grossTyped) * 100 : 100;
         setAccuracy(Math.round(currentAccuracy));
 
-        if (newTimeLeft <= 0) {
+        if (newTimeLeft <= 0 || typed.length === text.length) {
           endTest();
         }
       }, 1000);
@@ -91,29 +115,7 @@ export default function TypingTest() {
         clearInterval(timerInterval.current);
       }
     };
-  }, [startTime, testFinished, testDuration, typed, text]);
-  
-  const endTest = () => {
-    if (timerInterval.current) clearInterval(timerInterval.current);
-    if (!startTime) return;
-
-    setTestFinished(true);
-    const elapsedTime = (Date.now() - startTime) / 1000;
-    const correctChars = typed.split('').filter((char, index) => char === text[index]).length;
-    
-    const finalWpm = (correctChars / 5) / (Math.min(elapsedTime, testDuration) / 60);
-    const finalAccuracy = typed.length > 0 ? (correctChars / typed.length) * 100 : 100;
-    
-    const finalResult = {
-      wpm: Math.round(finalWpm),
-      accuracy: Math.round(finalAccuracy),
-      errors,
-      time: testDuration,
-    };
-    setResult(finalResult);
-    setWpm(finalResult.wpm);
-    setAccuracy(finalResult.accuracy);
-  };
+  }, [startTime, testFinished, testDuration, typed, text, endTest]);
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     e.preventDefault();
@@ -122,26 +124,33 @@ export default function TypingTest() {
     const { key } = e;
     setPressedKey(e.code);
     
+    const currentTime = Date.now();
     if (!startTime) {
-      setStartTime(Date.now());
+      setStartTime(currentTime);
+      setLastCharTime(currentTime);
     }
 
+    const charTime = lastCharTime ? currentTime - lastCharTime : 0;
+    setLastCharTime(currentTime);
+
     if (key.length === 1 && typed.length < text.length) {
-      if (key !== text[typed.length]) {
+      const isCorrect = key === text[typed.length];
+      if (!isCorrect) {
         setErrors(prev => prev + 1);
-        toast({
-          title: "Wrong key!",
-          variant: "destructive",
-          duration: 1000,
-        });
       }
+      setCharLogs(prev => [...prev, { char: text[typed.length], time: charTime, state: isCorrect ? 'correct' : 'incorrect' }]);
       setTyped(prev => prev + key);
     } else if (key === 'Backspace') {
       if (typed.length > 0) {
         setTyped(prev => prev.slice(0, -1));
+        const lastLog = charLogs.pop();
+        if (lastLog && lastLog.state === 'incorrect') {
+            const correctedLog = { ...lastLog, state: 'corrected' as const, time: charTime };
+            setCharLogs([...charLogs, correctedLog]);
+        }
       }
     }
-  }, [typed, text, startTime, testFinished, toast]);
+  }, [typed, text, startTime, testFinished, charLogs, lastCharTime]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -213,14 +222,14 @@ export default function TypingTest() {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-chart-1': isCorrect,
-                'text-destructive': isIncorrect,
+                'text-green-500': isCorrect,
+                'text-red-500': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
                 'cursor': isCurrent,
               })}
             >
               {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-accent animate-pulse rounded-full" />}
-              {char === ' ' && isIncorrect ? <span className='bg-destructive/50 rounded-[3px]'>{char}</span> : char}
+              {char === ' ' && isIncorrect ? <span className='bg-red-500/50 rounded-[3px]'>{char}</span> : char}
             </span>
           );
         })}

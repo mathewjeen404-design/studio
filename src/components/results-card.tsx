@@ -1,7 +1,7 @@
 import type { TestResult } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Target, Zap, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Target, Zap, AlertTriangle, Clock } from 'lucide-react';
 
 type ResultsCardProps = {
   result: TestResult;
@@ -45,7 +45,10 @@ export default function ResultsCard({ result, onRestart }: ResultsCardProps) {
           </div>
            <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
             <span className="text-sm text-muted-foreground">Time</span>
-            <span className="text-4xl font-bold">{time}s</span>
+             <div className="flex items-baseline gap-2">
+              <Clock className="h-6 w-6 text-muted-foreground" />
+              <span className="text-4xl font-bold">{time}s</span>
+            </div>
           </div>
         </div>
 

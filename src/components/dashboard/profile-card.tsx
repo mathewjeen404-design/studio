@@ -1,10 +1,23 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AtSign, BarChart, CheckCircle, Clock } from 'lucide-react';
+import { AtSign, BarChart, CheckCircle, Clock, Zap } from 'lucide-react';
+import { useTypingStats } from '@/hooks/use-typing-stats';
+import { getDifficulty } from '@/lib/intelligence';
+import { Button } from '../ui/button';
 
 export function ProfileCard() {
+  const { stats, resetStats } = useTypingStats();
+  const { overallWpm, overallAccuracy, totalTimeTyping, totalTests } = stats;
+
+  const bestWpm = Math.max(0, ...stats.sessions.map(s => s.wpm));
+  const totalWordsTyped = Math.round(stats.sessions.reduce((acc, s) => acc + (s.rawWpm * (s.time/60)), 0));
+
+  const difficulty = getDifficulty(overallWpm, overallAccuracy);
+
   return (
     <Card>
       <CardHeader className="items-center text-center">
@@ -15,11 +28,13 @@ export function ProfileCard() {
           />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
-        <CardTitle className="font-headline text-2xl">TypingMaster</CardTitle>
-        <p className="text-muted-foreground">Level 12 - Word Weaver</p>
+        <CardTitle className="font-headline text-2xl">Typing Enthusiast</CardTitle>
+        <CardDescription>
+            {totalTests > 10 ? 'Seasoned Typist' : 'Newcomer'}
+        </CardDescription>
         <div className="flex gap-2 pt-2">
-          <Badge variant="secondary">Pro</Badge>
-          <Badge variant="outline">Streak: 12 days</Badge>
+          <Badge variant="secondary" className="capitalize">{difficulty}</Badge>
+          <Badge variant="outline">Tests: {totalTests}</Badge>
         </div>
       </CardHeader>
       <CardContent>
@@ -27,29 +42,39 @@ export function ProfileCard() {
         <div className="space-y-4 text-sm">
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground flex items-center gap-2">
-              <BarChart size={16} /> Best WPM
+              <Zap size={16} /> Best WPM
             </span>
-            <span className="font-medium text-primary">124</span>
+            <span className="font-medium text-primary">{bestWpm.toFixed(0)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground flex items-center gap-2">
+              <BarChart size={16} /> Average WPM
+            </span>
+            <span className="font-medium text-primary">{overallWpm.toFixed(0)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground flex items-center gap-2">
               <CheckCircle size={16} /> Average Accuracy
             </span>
-            <span className="font-medium">98.2%</span>
+            <span className="font-medium">{overallAccuracy.toFixed(1)}%</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground flex items-center gap-2">
               <Clock size={16} /> Total Time Typing
             </span>
-            <span className="font-medium">42 hours</span>
+            <span className="font-medium">{(totalTimeTyping / 3600).toFixed(1)} hours</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground flex items-center gap-2">
               <AtSign size={16} /> Words Typed
             </span>
-            <span className="font-medium">250,123</span>
+            <span className="font-medium">{totalWordsTyped}</span>
           </div>
         </div>
+         <Separator className="my-4" />
+        <Button onClick={resetStats} variant="destructive" className="w-full">
+            Reset All My Stats
+        </Button>
       </CardContent>
     </Card>
   );

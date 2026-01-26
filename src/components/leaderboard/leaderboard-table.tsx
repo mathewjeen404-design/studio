@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -7,30 +9,39 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Trophy } from 'lucide-react';
-
-const leaderboardData = [
-  { rank: 1, user: 'VelocityViper', wpm: 182, accuracy: 99.5, avatarSeed: 'v' },
-  { rank: 2, user: 'QwertyQueen', wpm: 175, accuracy: 98.9, avatarSeed: 'q' },
-  { rank: 3, user: 'AeroType', wpm: 171, accuracy: 100, avatarSeed: 'a' },
-  { rank: 4, user: 'ChronoKeys', wpm: 168, accuracy: 97.2, avatarSeed: 'c' },
-  { rank: 5, user: 'ByteBlazer', wpm: 165, accuracy: 99.1, avatarSeed: 'b' },
-  { rank: 6, user: 'TypingTitan', wpm: 160, accuracy: 98.5, avatarSeed: 't' },
-  { rank: 7, user: 'ShiftSavvy', wpm: 158, accuracy: 99.8, avatarSeed: 's' },
-  { rank: 8, user: 'ZenithKeys', wpm: 155, accuracy: 96.5, avatarSeed: 'z' },
-  { rank: 9, user: 'RapidFingers', wpm: 154, accuracy: 97.8, avatarSeed: 'r' },
-  { rank: 10, user: 'KeyMaster', wpm: 152, accuracy: 98.2, avatarSeed: 'k' },
-];
+import { useTypingStats } from '@/hooks/use-typing-stats';
 
 export function LeaderboardTable() {
+    const { stats } = useTypingStats();
+
+    const leaderboardData = stats.sessions
+        .sort((a, b) => b.wpm - a.wpm)
+        .slice(0, 10)
+        .map((session, index) => ({
+            rank: index + 1,
+            user: `Test ${stats.sessions.indexOf(session) + 1}`,
+            wpm: session.wpm,
+            accuracy: session.accuracy,
+            avatarSeed: String(stats.sessions.indexOf(session) + 1)
+        }));
+
+    if (leaderboardData.length === 0) {
+        return (
+            <div className="flex h-64 w-full items-center justify-center rounded-lg border-2 border-dashed bg-muted/50">
+                <p className="text-muted-foreground">Complete some tests to see your high scores!</p>
+            </div>
+        )
+    }
+
+
   return (
     <div className="max-w-4xl mx-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[80px] text-center">Rank</TableHead>
-            <TableHead>User</TableHead>
+            <TableHead>Session</TableHead>
             <TableHead className="text-right">WPM</TableHead>
             <TableHead className="text-right">Accuracy</TableHead>
           </TableRow>
@@ -53,7 +64,7 @@ export function LeaderboardTable() {
                       src={`https://picsum.photos/seed/${entry.avatarSeed}/40/40`}
                       alt={entry.user}
                     />
-                    <AvatarFallback>{entry.avatarSeed.toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{entry.avatarSeed}</AvatarFallback>
                   </Avatar>
                   <span className="font-medium">{entry.user}</span>
                 </div>

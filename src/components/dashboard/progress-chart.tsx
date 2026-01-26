@@ -6,17 +6,8 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from '@/components/ui/chart';
+import { useTypingStats } from '@/hooks/use-typing-stats';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-
-const chartData = [
-  { date: '2024-07-01', wpm: 75, accuracy: 95 },
-  { date: '2024-07-02', wpm: 78, accuracy: 96 },
-  { date: '2024-07-03', wpm: 82, accuracy: 95 },
-  { date: '2024-07-04', wpm: 80, accuracy: 97 },
-  { date: '2024-07-05', wpm: 85, accuracy: 98 },
-  { date: '2024-07-06', wpm: 88, accuracy: 97 },
-  { date: '2024-07-07', wpm: 92, accuracy: 98 },
-];
 
 const chartConfig = {
   wpm: {
@@ -30,6 +21,22 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ProgressChart() {
+  const { stats } = useTypingStats();
+  
+  const chartData = stats.sessions.map((session, index) => ({
+      date: `Test ${index + 1}`,
+      wpm: session.wpm,
+      accuracy: session.accuracy
+  })).slice(-20); // show last 20 sessions
+
+  if (chartData.length === 0) {
+      return (
+          <div className="flex h-64 w-full items-center justify-center rounded-lg border-2 border-dashed bg-muted/50">
+              <p className="text-muted-foreground">Complete a typing test to see your progress!</p>
+          </div>
+      )
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-64 w-full">
       <AreaChart data={chartData}>
@@ -61,7 +68,6 @@ export function ProgressChart() {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
         />
         <YAxis
           yAxisId="left"
@@ -75,7 +81,7 @@ export function ProgressChart() {
           stroke="var(--color-accuracy)"
           tickLine={false}
           axisLine={false}
-          domain={[80, 100]}
+          domain={[50, 100]}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Area

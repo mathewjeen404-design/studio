@@ -1,3 +1,5 @@
+'use client';
+
 import { Award, Rocket, ShieldCheck, Star, Zap } from 'lucide-react';
 import {
   Tooltip,
@@ -6,46 +8,59 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useTypingStats } from '@/hooks/use-typing-stats';
 
-const badges = [
+const allBadges = [
   {
+    id: 'speed-demon',
     icon: Zap,
     title: 'Speed Demon',
-    description: 'Achieve over 100 WPM in a 1-minute test.',
-    achieved: true,
+    description: 'Achieve over 100 WPM in a test.',
+    isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 100,
   },
   {
+    id: 'accuracy-master',
     icon: ShieldCheck,
     title: 'Accuracy Master',
-    description: 'Achieve 100% accuracy in a 1-minute test.',
-    achieved: true,
+    description: 'Achieve 100% accuracy in a test.',
+    isAchieved: (stats: any) => stats.sessions.some((s: any) => s.accuracy === 100),
   },
   {
+    id: 'consistent-coder',
     icon: Star,
     title: 'Consistent Coder',
-    description: 'Complete a session every day for 7 days.',
-    achieved: true,
+    description: 'Complete 10 typing tests.',
+    isAchieved: (stats: any) => stats.totalTests >= 10,
   },
   {
+    id: 'warp-speed',
     icon: Rocket,
     title: 'Warp Speed',
     description: 'Achieve over 150 WPM.',
-    achieved: false,
+    isAchieved: (stats: any) => Math.max(0, ...stats.sessions.map((s: any) => s.wpm)) >= 150,
   },
   {
+    id: 'typing-veteran',
     icon: Award,
     title: 'Typing Veteran',
     description: 'Complete 100 typing tests.',
-    achieved: false,
+    isAchieved: (stats: any) => stats.totalTests >= 100,
   },
 ];
 
 export function BadgesGrid() {
+  const { stats } = useTypingStats();
+
+  const badges = allBadges.map(badge => ({
+    ...badge,
+    achieved: badge.isAchieved(stats),
+  }));
+
   return (
     <TooltipProvider>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-        {badges.map((badge, index) => (
-          <Tooltip key={index}>
+        {badges.map((badge) => (
+          <Tooltip key={badge.id}>
             <TooltipTrigger asChild>
               <div
                 className={cn(
