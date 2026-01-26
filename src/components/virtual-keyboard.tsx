@@ -34,11 +34,11 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 }
 
 const fingerDimensions: { [key: string]: { w: number; h: number } } = {
-  pinky: { w: 22, h: 36 },
-  ring: { w: 24, h: 42 },
-  middle: { w: 26, h: 46 },
-  index: { w: 26, h: 44 },
-  thumb: { w: 32, h: 28 },
+  pinky: { w: 22, h: 34 },
+  ring: { w: 24, h: 40 },
+  middle: { w: 25, h: 44 },
+  index: { w: 25, h: 42 },
+  thumb: { w: 32, h: 30 },
 };
 
 const Finger = ({ finger, isHighlighted }: { finger: FingerName; isHighlighted: boolean }) => {
@@ -81,7 +81,7 @@ const Finger = ({ finger, isHighlighted }: { finger: FingerName; isHighlighted: 
             <div className={cn(
                 'w-full h-full rounded-full border-2 transition-colors',
                 isHighlighted 
-                    ? 'bg-accent/50 border-accent drop-shadow-[0_0_8px_hsl(var(--accent))]' 
+                    ? 'bg-primary/50 border-primary drop-shadow-[0_0_8px_hsl(var(--primary))]' 
                     : 'bg-primary/10 border-primary/40'
             )}></div>
         </div>
@@ -128,8 +128,8 @@ const Key = ({
       className={cn(
         'relative h-10 md:h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
         'border-primary/20',
-        isHighlight && !isTarget && 'bg-accent/50 border-accent/70',
-        isTarget && 'bg-accent text-accent-foreground scale-110 border-accent',
+        isHighlight && !isTarget && 'bg-primary/20 border-primary/50',
+        isTarget && 'bg-primary text-primary-foreground scale-110 border-primary',
         isPressed ? 'translate-y-0.5 border-b-2 bg-primary text-primary-foreground' : 'hover:bg-primary/20',
         className
       )}

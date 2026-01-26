@@ -201,7 +201,7 @@ export function LessonView({ level }: LessonViewProps) {
                 'text-muted-foreground/60': !isTyped,
               })}
             >
-              {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-accent animate-pulse rounded-full" />}
+              {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-primary animate-pulse rounded-full" />}
               {char === ' ' && isIncorrect ? <span className='bg-destructive/50 rounded-[3px]'>{char}</span> : char}
             </span>
           );
