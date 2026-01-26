@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { KEY_TO_FINGER_MAP } from '@/lib/key-map';
 import type { FingerName } from '@/lib/types';
+import { HandGuide } from './hand-guide';
 
 const keyLayout = [
   ['Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'Backspace'],
@@ -55,7 +56,11 @@ const Key = ({
   const fingerColor = fingerInfo && fingerZones ? FINGER_COLORS[fingerInfo.finger] : '';
   
   const isHighlight = highlightKeys?.includes(char);
-  const isTarget = targetKey === char;
+  
+  const isShiftNeeded = targetKey && targetKey >= 'A' && targetKey <= 'Z';
+  const isShiftTarget = (keyCode === 'ShiftLeft' || keyCode === 'ShiftRight') && isShiftNeeded;
+
+  const isTarget = (targetKey?.toLowerCase() === char) || isShiftTarget;
 
   return (
     <div
@@ -85,29 +90,34 @@ export default function VirtualKeyboard({
     targetKey?: string | null;
     fingerZones?: boolean;
 }) {
-  return (
-    <div className="w-full max-w-4xl p-2 space-y-2 bg-card rounded-lg border">
-      {keyLayout.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex gap-2">
-          {row.map((keyCode) => {
-            let className = 'flex-1';
-            if (['Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight'].includes(keyCode)) className = 'flex-[1.5]';
-            if (keyCode === 'CapsLock') className = 'flex-[1.7]';
-            if (keyCode === 'Space') className = 'flex-[5]';
+  const targetFinger: FingerName | null = targetKey ? KEY_TO_FINGER_MAP[targetKey.toLowerCase()]?.finger ?? null : null;
 
-            return <Key 
-              key={keyCode} 
-              keyCode={keyCode} 
-              display={keyDisplayMap[keyCode]} 
-              pressedKey={pressedKey} 
-              highlightKeys={highlightKeys}
-              targetKey={targetKey}
-              fingerZones={fingerZones}
-              className={className} 
-            />;
-          })}
-        </div>
-      ))}
+  return (
+    <div className="w-full max-w-4xl flex flex-col items-center gap-4">
+      {fingerZones && <HandGuide highlightFinger={targetFinger} />}
+      <div className="w-full p-2 space-y-2 bg-card rounded-lg border">
+        {keyLayout.map((row, rowIndex) => (
+          <div key={rowIndex} className="flex gap-2">
+            {row.map((keyCode) => {
+              let className = 'flex-1';
+              if (['Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight'].includes(keyCode)) className = 'flex-[1.5]';
+              if (keyCode === 'CapsLock') className = 'flex-[1.7]';
+              if (keyCode === 'Space') className = 'flex-[5]';
+
+              return <Key 
+                key={keyCode} 
+                keyCode={keyCode} 
+                display={keyDisplayMap[keyCode]} 
+                pressedKey={pressedKey} 
+                highlightKeys={highlightKeys}
+                targetKey={targetKey}
+                fingerZones={fingerZones}
+                className={className} 
+              />;
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
