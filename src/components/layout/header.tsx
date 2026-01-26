@@ -22,6 +22,14 @@ export function Header() {
                 Practice
               </Link>
             </Button>
+             <Button variant="ghost" asChild>
+              <Link
+                href="/lessons"
+                className="transition-colors text-foreground/80"
+              >
+                Lessons
+              </Link>
+            </Button>
             <Button variant="ghost" asChild>
               <Link
                 href="/dashboard"

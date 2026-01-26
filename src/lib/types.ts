@@ -47,4 +47,5 @@ export interface UserStats {
   overallAccuracy: number;
   totalTests: number;
   totalTimeTyping: number; // in seconds
+  unlockedLevel: number;
 }

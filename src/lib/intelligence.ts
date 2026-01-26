@@ -8,7 +8,7 @@ const RARE_WORDS = ['ephemeral', 'ubiquitous', 'gregarious', 'idiosyncrasy', 'ju
 export const FINGERS: FingerName[] = ['left-pinky', 'left-ring', 'left-middle', 'left-index', 'thumb', 'right-index', 'right-middle', 'right-ring', 'right-pinky'];
 export const HANDS: HandName[] = ['left', 'right'];
 
-export const DEFAULT_STATS: UserStats = {
+export const DEFAULT_STATS: Omit<UserStats, 'unlockedLevel'> = {
   sessions: [],
   charStats: {},
   fingerStats: FINGERS.reduce((acc, finger) => ({ ...acc, [finger]: { errors: 0, count: 0, totalTime: 0, avgTime: 0, errorRate: 0, wpm: 0 } }), {} as Record<FingerName, FingerStat>),
