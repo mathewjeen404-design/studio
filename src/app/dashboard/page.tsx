@@ -3,7 +3,9 @@ import { Footer } from '@/components/layout/footer';
 import { ProfileCard } from '@/components/dashboard/profile-card';
 import { ProgressChart } from '@/components/dashboard/progress-chart';
 import { BadgesGrid } from '@/components/dashboard/badges-grid';
-import { Activity, Star, Target, Trophy } from 'lucide-react';
+import { HandPerformanceChart } from '@/components/dashboard/hand-performance-chart';
+import { FingerPerformanceChart } from '@/components/dashboard/finger-performance-chart';
+import { Activity, Fingerprint, Hand, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DashboardPage() {
@@ -22,13 +24,37 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Activity size={24} />
-                    <span>Performance</span>
+                    <span>Performance Over Time</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ProgressChart />
                 </CardContent>
               </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Hand size={24} />
+                      <span>Hand Performance</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <HandPerformanceChart />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Fingerprint size={24} />
+                      <span>Finger Performance</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FingerPerformanceChart />
+                  </CardContent>
+                </Card>
+              </div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
