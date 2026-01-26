@@ -1,6 +1,7 @@
-import type { Difficulty, UserStats, KeyStat, TestResult, FingerName, HandName, FingerStat } from './types';
+import type { Difficulty, UserStats, KeyStat, TestResult, FingerName, HandName, FingerStat, CharLog } from './types';
 import { words } from './words';
 import { KEY_TO_FINGER_MAP } from './key-map';
+import { REAL_WORLD_TEXTS } from './real-world-text';
 
 const PUNCTUATION = ['.', ',', '?', '!', ';', ':'];
 const SYMBOLS = ['(', ')', '[', ']', '{', '}', '@', '#', '$', '%', '^', '&', '*', '-', '_', '+', '='];
@@ -26,6 +27,14 @@ export const DEFAULT_STATS: Omit<UserStats, 'unlockedLevel'> = {
   currentStreak: 0,
   longestStreak: 0,
   lastSessionTimestamp: null,
+  certifications: {
+    wpm40: false,
+    wpm60: false,
+    wpm80: false,
+    accuracyPro: false,
+    codeSpecialist: false,
+  },
+  fatigueIndex: 0,
 };
 
 export const getXpForNextLevel = (level: number) => {
@@ -33,13 +42,14 @@ export const getXpForNextLevel = (level: number) => {
 }
 
 export const getTypingPersonality = (stats: UserStats) => {
-    const { overallWpm, overallAccuracy, consistency, totalTests } = stats;
+    const { overallWpm, overallAccuracy, consistency, totalTests, fatigueIndex } = stats;
 
+    if (fatigueIndex > 70) return "Feeling Fatigued";
     if (overallWpm > 75 && overallAccuracy > 95) return "Speed Demon";
     if (overallAccuracy > 98) return "Accuracy Ace";
-    if (consistency > 90 && overallWpm > 50) return "Consistent Pro";
+    if (consistency > 90 && overallWpm > 50) return "Rhythm Master";
     if (overallWpm > 60) return "Swift Typist";
-    if (totalTests > 50) return "Seasoned Veteran";
+    if (totalTests > 100) return "Seasoned Veteran";
     if (consistency < 70 && overallWpm > 40) return "Wildcard";
     
     return "Aspiring Typist";
@@ -68,7 +78,19 @@ function getWeakCharacters(charStats: { [char: string]: KeyStat }, count: number
     return topWeak.sort(() => Math.random() - 0.5).slice(0, count).map(c => c.char);
 }
 
-export function generatePracticeText(difficulty: Difficulty, userStats: UserStats): string {
+export function generatePracticeText(difficulty: Difficulty, userStats: UserStats, mode: string = 'words'): string {
+    if (mode === 'email') {
+        return REAL_WORLD_TEXTS.email[Math.floor(Math.random() * REAL_WORLD_TEXTS.email.length)];
+    }
+    if (mode === 'resume') {
+        return REAL_WORLD_TEXTS.resume[Math.floor(Math.random() * REAL_WORLD_TEXTS.resume.length)];
+    }
+    if (mode === 'code') {
+        const lang = Math.random() > 0.5 ? 'python' : 'javascript';
+        const snippets = REAL_WORLD_TEXTS.code[lang as keyof typeof REAL_WORLD_TEXTS.code];
+        return snippets[Math.floor(Math.random() * snippets.length)];
+    }
+    
     const wordCount = 30;
     let generatedWords: string[] = [];
 
@@ -177,6 +199,45 @@ export function analyzeSession(result: TestResult, oldStats: UserStats): UserSta
     }
     newStats.longestStreak = Math.max(newStats.longestStreak, newStats.currentStreak);
     newStats.lastSessionTimestamp = result.timestamp;
+
+    // Fatigue
+    const halfIndex = Math.floor(result.charLogs.length / 2);
+    if (result.time > 45 && halfIndex > 10) { // Only check fatigue on longer tests
+        const firstHalfLogs = result.charLogs.slice(0, halfIndex);
+        const secondHalfLogs = result.charLogs.slice(halfIndex);
+
+        const getPerf = (logs: CharLog[]) => {
+            const time = logs.reduce((sum, log) => sum + log.time, 0) / 1000;
+            const correctChars = logs.filter(l => l.state === 'correct').length;
+            const wpm = (correctChars / 5) / (time / 60);
+            const accuracy = (correctChars / logs.length) * 100;
+            return { wpm, accuracy };
+        };
+        const firstHalfPerf = getPerf(firstHalfLogs);
+        const secondHalfPerf = getPerf(secondHalfLogs);
+        
+        const wpmDrop = firstHalfPerf.wpm - secondHalfPerf.wpm;
+        const accDrop = firstHalfPerf.accuracy - secondHalfPerf.accuracy;
+        
+        if (wpmDrop > firstHalfPerf.wpm * 0.2 && accDrop > 3) {
+            newStats.fatigueIndex = Math.min(100, (newStats.fatigueIndex || 0) + 15);
+        } else {
+            newStats.fatigueIndex = Math.max(0, (newStats.fatigueIndex || 0) - 5);
+        }
+    } else {
+        newStats.fatigueIndex = Math.max(0, (newStats.fatigueIndex || 0) - 5);
+    }
+
+    // Certifications
+    if (result.time >= 60) {
+        if (result.wpm >= 40 && result.accuracy >= 95) newStats.certifications.wpm40 = true;
+        if (result.wpm >= 60 && result.accuracy >= 95) newStats.certifications.wpm60 = true;
+        if (result.wpm >= 80 && result.accuracy >= 95) newStats.certifications.wpm80 = true;
+        if (result.accuracy >= 98) newStats.certifications.accuracyPro = true;
+    }
+    if (result.mode === 'code' && result.wpm >= 40 && result.accuracy >= 96) {
+        newStats.certifications.codeSpecialist = true;
+    }
 
     // ANALYTICS
     for (const log of result.charLogs) {

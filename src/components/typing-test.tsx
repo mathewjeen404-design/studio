@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Timer } from 'lucide-react';
+import { RefreshCw, Timer, BookText } from 'lucide-react';
 import type { TestResult, CharLog } from '@/lib/types';
 import Stats from '@/components/stats';
 import ResultsCard from '@/components/results-card';
@@ -19,6 +19,12 @@ import { Card } from '@/components/ui/card';
 import { useTypingStats } from '@/hooks/use-typing-stats';
 
 const TEST_DURATIONS = [15, 30, 60, 120];
+const TEST_MODES = [
+    { value: 'words', label: 'Words' },
+    { value: 'email', label: 'Email' },
+    { value: 'resume', label: 'Resume' },
+    { value: 'code', label: 'Code' },
+];
 
 export default function TypingTest() {
   const { stats, getNewTestText, saveTestResult } = useTypingStats();
@@ -30,6 +36,7 @@ export default function TypingTest() {
   
   const [startTime, setStartTime] = useState<number | null>(null);
   const [testDuration, setTestDuration] = useState(60);
+  const [mode, setMode] = useState('words');
   const [timeLeft, setTimeLeft] = useState(testDuration);
   const [errors, setErrors] = useState(0);
   const [wpm, setWpm] = useState(0);
@@ -45,7 +52,7 @@ export default function TypingTest() {
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
     }
-    setText(getNewTestText());
+    setText(getNewTestText(mode));
     setTyped('');
     setStartTime(null);
     setTimeLeft(testDuration);
@@ -57,7 +64,7 @@ export default function TypingTest() {
     setPressedKey(null);
     setCharLogs([]);
     setLastCharTime(null);
-  }, [testDuration, getNewTestText]);
+  }, [testDuration, getNewTestText, mode]);
 
   useEffect(() => {
     resetTest();
@@ -76,6 +83,14 @@ export default function TypingTest() {
     const rawWpm = (grossTyped / 5) / (Math.min(elapsedTime, testDuration) / 60);
     const finalAccuracy = grossTyped > 0 ? (correctChars / grossTyped) * 100 : 100;
     
+    const charTimes = charLogs.filter(log => log.state === 'correct' && log.time > 0 && log.time < 1000).map(log => log.time);
+    let consistency = 0;
+    if (charTimes.length > 2) {
+        const meanTime = charTimes.reduce((a, b) => a + b, 0) / charTimes.length;
+        const stdDevTime = Math.sqrt(charTimes.map(t => Math.pow(t - meanTime, 2)).reduce((a, b) => a + b, 0) / charTimes.length);
+        consistency = meanTime > 0 ? Math.max(0, 100 - (stdDevTime / meanTime) * 100) : 100;
+    }
+
     const finalResult: TestResult = {
       wpm: Math.round(finalWpm),
       rawWpm: Math.round(rawWpm),
@@ -84,12 +99,14 @@ export default function TypingTest() {
       time: testDuration,
       charLogs,
       timestamp: Date.now(),
+      consistency: Math.round(consistency),
+      mode,
     };
     setResult(finalResult);
     saveTestResult(finalResult);
     setWpm(finalResult.wpm);
     setAccuracy(finalResult.accuracy);
-  }, [startTime, typed, text, errors, testDuration, charLogs, saveTestResult]);
+  }, [startTime, typed, text, errors, testDuration, charLogs, saveTestResult, mode]);
 
   useEffect(() => {
     if (startTime && !testFinished) {
@@ -106,7 +123,7 @@ export default function TypingTest() {
         const currentAccuracy = grossTyped > 0 ? (correctChars / grossTyped) * 100 : 100;
         setAccuracy(Math.round(currentAccuracy));
 
-        if (newTimeLeft <= 0 || typed.length === text.length) {
+        if (newTimeLeft <= 0 || (mode !== 'words' && typed.length === text.length)) {
           endTest();
         }
       }, 1000);
@@ -116,9 +133,15 @@ export default function TypingTest() {
         clearInterval(timerInterval.current);
       }
     };
-  }, [startTime, testFinished, testDuration, typed, text, endTest]);
+  }, [startTime, testFinished, testDuration, typed, text, endTest, mode]);
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (mode === 'code' && e.key === 'Tab') {
+        e.preventDefault();
+        // A simple tab implementation (e.g., 2 spaces), real editors are more complex
+        setTyped(prev => prev + '  ');
+        return;
+    }
     e.preventDefault();
     if (testFinished) return;
 
@@ -151,7 +174,7 @@ export default function TypingTest() {
         }
       }
     }
-  }, [typed, text, startTime, testFinished, charLogs, lastCharTime]);
+  }, [typed, text, startTime, testFinished, charLogs, lastCharTime, mode]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -179,7 +202,26 @@ export default function TypingTest() {
     <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <Stats wpm={wpm} accuracy={accuracy} errors={errors} time={timeLeft} />
-        <Card className="p-3 md:p-4 flex items-center justify-around">
+        <Card className="p-3 md:p-4 flex items-center justify-around gap-2">
+            <div className="flex items-center gap-2">
+              <BookText className="h-6 w-6 text-muted-foreground" />
+               <Select
+                value={mode}
+                onValueChange={(val) => setMode(val)}
+                disabled={!!startTime}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEST_MODES.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center gap-2">
               <Timer className="h-6 w-6 text-muted-foreground" />
               <Select
@@ -202,7 +244,7 @@ export default function TypingTest() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={resetTest} variant="outline">
+            <Button onClick={resetTest} variant="outline" size="icon">
               <RefreshCw className="h-4 w-4" />
             </Button>
         </Card>
@@ -210,7 +252,9 @@ export default function TypingTest() {
 
       <div
         ref={textDisplayRef}
-        className="relative text-2xl md:text-3xl leading-relaxed tracking-wider font-mono p-4 md:p-8 bg-card border rounded-lg max-h-[17rem] overflow-hidden focus:outline-none"
+        className={cn("relative text-2xl md:text-3xl leading-relaxed tracking-wider p-4 md:p-8 bg-card border rounded-lg max-h-[17rem] overflow-auto focus:outline-none",
+            mode === 'code' ? 'font-code whitespace-pre-wrap text-lg' : 'font-mono'
+        )}
         tabIndex={0}
       >
         {text.split('').map((char, index) => {

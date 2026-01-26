@@ -14,6 +14,8 @@ export interface TestResult {
   time: number;
   charLogs: CharLog[];
   timestamp: number;
+  consistency: number;
+  mode?: string;
 }
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -56,4 +58,12 @@ export interface UserStats {
   currentStreak: number;
   longestStreak: number;
   lastSessionTimestamp: number | null;
+  certifications: {
+    wpm40: boolean;
+    wpm60: boolean;
+    wpm80: boolean;
+    accuracyPro: boolean;
+    codeSpecialist: boolean;
+  };
+  fatigueIndex: number;
 }

@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { BarChart, CheckCircle, Flame, Gauge, Gem, Star } from 'lucide-react';
+import { BarChart, CheckCircle, Flame, Gauge, Gem, Star, BatteryWarning } from 'lucide-react';
 import { useTypingStats } from '@/hooks/use-typing-stats';
 import { getXpForNextLevel, getTypingPersonality } from '@/lib/intelligence';
 import { Button } from '../ui/button';
@@ -20,7 +20,8 @@ export function ProfileCard() {
     xp, 
     consistency, 
     currentStreak, 
-    longestStreak 
+    longestStreak,
+    fatigueIndex,
   } = stats;
 
   const xpForNext = getXpForNextLevel(level);
@@ -56,6 +57,13 @@ export function ProfileCard() {
             </div>
           <Progress value={xpProgress} className="h-2" />
         </div>
+
+        {fatigueIndex > 60 && (
+            <div className="p-3 my-4 rounded-md bg-destructive/10 text-destructive text-sm flex items-center gap-2">
+                <BatteryWarning size={16} />
+                <span>Your performance is dropping. Consider taking a break!</span>
+            </div>
+        )}
         
         <Separator className="my-4" />
         

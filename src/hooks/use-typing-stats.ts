@@ -7,6 +7,14 @@ import { useMemo, useCallback } from 'react';
 export const DEFAULT_STATS: UserStats = {
     ...BASE_DEFAULT_STATS,
     unlockedLevel: 1,
+    certifications: {
+        wpm40: false,
+        wpm60: false,
+        wpm80: false,
+        accuracyPro: false,
+        codeSpecialist: false,
+    },
+    fatigueIndex: 0,
 };
 
 export function useTypingStats() {
@@ -16,8 +24,8 @@ export function useTypingStats() {
         return getDifficulty(stats.overallWpm, stats.overallAccuracy);
     }, [stats.overallWpm, stats.overallAccuracy]);
 
-    const getNewTestText = useCallback(() => {
-        return generatePracticeText(difficulty, stats);
+    const getNewTestText = useCallback((mode: string = 'words') => {
+        return generatePracticeText(difficulty, stats, mode);
     }, [difficulty, stats]);
 
     const saveTestResult = useCallback((result: TestResult) => {
@@ -35,11 +43,12 @@ export function useTypingStats() {
     }, [setStats]);
 
     const resetStats = useCallback(() => {
-        // Keep unlockedLevel, reset everything else
+        // Keep unlockedLevel and certifications, reset everything else
         const currentUnlockedLevel = stats.unlockedLevel;
-        const freshStats = { ...DEFAULT_STATS, unlockedLevel: currentUnlockedLevel };
+        const currentCerts = stats.certifications;
+        const freshStats = { ...DEFAULT_STATS, unlockedLevel: currentUnlockedLevel, certifications: currentCerts };
         setStats(freshStats);
-    }, [setStats, stats.unlockedLevel]);
+    }, [setStats, stats.unlockedLevel, stats.certifications]);
 
     return { stats, difficulty, getNewTestText, saveTestResult, resetStats, completeLevel };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Flame, Gem, Rocket, ShieldCheck, Star, Zap } from 'lucide-react';
+import { Award, Flame, Gem, Rocket, ShieldCheck, Star, Zap, Medal, Code } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -59,7 +59,42 @@ const allBadges = [
     title: 'Adept Typist',
     description: 'Reach Level 10.',
     isAchieved: (stats: any) => stats.level >= 10,
-  }
+  },
+  {
+    id: 'cert-wpm-40',
+    icon: Medal,
+    title: 'Certified 40 WPM',
+    description: 'Achieve 40 WPM with >95% accuracy in a 60s+ test.',
+    isAchieved: (stats: any) => stats.certifications.wpm40,
+  },
+  {
+    id: 'cert-wpm-60',
+    icon: Medal,
+    title: 'Certified 60 WPM',
+    description: 'Achieve 60 WPM with >95% accuracy in a 60s+ test.',
+    isAchieved: (stats: any) => stats.certifications.wpm60,
+  },
+    {
+    id: 'cert-wpm-80',
+    icon: Medal,
+    title: 'Certified 80 WPM',
+    description: 'Achieve 80 WPM with >95% accuracy in a 60s+ test.',
+    isAchieved: (stats: any) => stats.certifications.wpm80,
+  },
+  {
+    id: 'cert-accuracy',
+    icon: ShieldCheck,
+    title: 'Accuracy Professional',
+    description: 'Achieve 98% accuracy in a 60s+ test.',
+    isAchieved: (stats: any) => stats.certifications.accuracyPro,
+  },
+  {
+    id: 'cert-code',
+    icon: Code,
+    title: 'Code Typing Specialist',
+    description: 'Pass a code test with >40 WPM and >96% accuracy.',
+    isAchieved: (stats: any) => stats.certifications.codeSpecialist,
+  },
 ];
 
 export function BadgesGrid() {
@@ -72,7 +107,7 @@ export function BadgesGrid() {
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4">
+      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4">
         {badges.map((badge) => (
           <Tooltip key={badge.id}>
             <TooltipTrigger asChild>

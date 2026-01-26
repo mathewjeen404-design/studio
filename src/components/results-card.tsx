@@ -1,7 +1,7 @@
 import type { TestResult } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Target, Zap, AlertTriangle, Clock } from 'lucide-react';
+import { RefreshCw, Target, Zap, AlertTriangle, Clock, Waves } from 'lucide-react';
 
 type ResultsCardProps = {
   result: TestResult;
@@ -9,17 +9,17 @@ type ResultsCardProps = {
 };
 
 export default function ResultsCard({ result, onRestart }: ResultsCardProps) {
-  const { wpm, accuracy, errors, time } = result;
+  const { wpm, accuracy, errors, time, consistency } = result;
 
   return (
-    <Card className="w-full max-w-2xl animate-in fade-in-50 zoom-in-95">
+    <Card className="w-full max-w-4xl animate-in fade-in-50 zoom-in-95">
       <CardHeader>
         <CardTitle className="text-2xl font-headline text-center">
           Test Complete!
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
           <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
             <span className="text-sm text-muted-foreground">WPM</span>
             <div className="flex items-baseline gap-2">
@@ -32,6 +32,13 @@ export default function ResultsCard({ result, onRestart }: ResultsCardProps) {
             <div className="flex items-baseline gap-2">
               <Target className="h-6 w-6 text-accent" />
               <span className="text-4xl font-bold text-accent">{accuracy}%</span>
+            </div>
+          </div>
+           <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
+            <span className="text-sm text-muted-foreground">Rhythm</span>
+            <div className="flex items-baseline gap-2">
+              <Waves className="h-6 w-6 text-blue-500" />
+              <span className="text-4xl font-bold text-blue-500">{consistency}%</span>
             </div>
           </div>
           <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
