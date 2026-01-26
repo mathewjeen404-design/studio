@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Rocket, ShieldCheck, Star, Zap } from 'lucide-react';
+import { Award, Flame, Gem, Rocket, ShieldCheck, Star, Zap } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -46,6 +46,20 @@ const allBadges = [
     description: 'Complete 100 typing tests.',
     isAchieved: (stats: any) => stats.totalTests >= 100,
   },
+  {
+    id: 'streak-starter',
+    icon: Flame,
+    title: 'Streak Starter',
+    description: 'Maintain a 3-day streak.',
+    isAchieved: (stats: any) => stats.longestStreak >= 3,
+  },
+  {
+    id: 'adept-typist',
+    icon: Gem,
+    title: 'Adept Typist',
+    description: 'Reach Level 10.',
+    isAchieved: (stats: any) => stats.level >= 10,
+  }
 ];
 
 export function BadgesGrid() {
@@ -58,7 +72,7 @@ export function BadgesGrid() {
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4">
         {badges.map((badge) => (
           <Tooltip key={badge.id}>
             <TooltipTrigger asChild>

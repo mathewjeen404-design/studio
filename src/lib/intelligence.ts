@@ -8,6 +8,8 @@ const RARE_WORDS = ['ephemeral', 'ubiquitous', 'gregarious', 'idiosyncrasy', 'ju
 export const FINGERS: FingerName[] = ['left-pinky', 'left-ring', 'left-middle', 'left-index', 'thumb', 'right-index', 'right-middle', 'right-ring', 'right-pinky'];
 export const HANDS: HandName[] = ['left', 'right'];
 
+export const XP_PER_LEVEL = 1000;
+
 export const DEFAULT_STATS: Omit<UserStats, 'unlockedLevel'> = {
   sessions: [],
   charStats: {},
@@ -17,7 +19,31 @@ export const DEFAULT_STATS: Omit<UserStats, 'unlockedLevel'> = {
   overallAccuracy: 100,
   totalTests: 0,
   totalTimeTyping: 0,
+  // Gamification
+  xp: 0,
+  level: 1,
+  consistency: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  lastSessionTimestamp: null,
 };
+
+export const getXpForNextLevel = (level: number) => {
+    return Math.floor(XP_PER_LEVEL * Math.pow(1.2, level - 1));
+}
+
+export const getTypingPersonality = (stats: UserStats) => {
+    const { overallWpm, overallAccuracy, consistency, totalTests } = stats;
+
+    if (overallWpm > 75 && overallAccuracy > 95) return "Speed Demon";
+    if (overallAccuracy > 98) return "Accuracy Ace";
+    if (consistency > 90 && overallWpm > 50) return "Consistent Pro";
+    if (overallWpm > 60) return "Swift Typist";
+    if (totalTests > 50) return "Seasoned Veteran";
+    if (consistency < 70 && overallWpm > 40) return "Wildcard";
+    
+    return "Aspiring Typist";
+}
 
 
 export function getDifficulty(wpm: number, accuracy: number): Difficulty {
@@ -38,9 +64,6 @@ function getWeakCharacters(charStats: { [char: string]: KeyStat }, count: number
         return b.avgTime - a.avgTime;
     });
 
-    // Spaced repetition: focus on characters that haven't been practiced recently
-    // This is simplified. A real implementation would track last practiced time.
-    // For now, we add some randomness to the top weak characters.
     const topWeak = sorted.slice(0, count * 2);
     return topWeak.sort(() => Math.random() - 0.5).slice(0, count).map(c => c.char);
 }
@@ -51,7 +74,6 @@ export function generatePracticeText(difficulty: Difficulty, userStats: UserStat
 
     const weakChars = getWeakCharacters(userStats.charStats);
 
-    // 50% of words should contain a weak character
     const weakWordCount = Math.floor(wordCount * 0.5);
     if (weakChars.length > 0) {
         const weakWords = words.filter(word => weakChars.some(char => word.includes(char)));
@@ -64,30 +86,26 @@ export function generatePracticeText(difficulty: Difficulty, userStats: UserStat
         }
     }
 
-    // Fill the rest with random words
     for (let i = generatedWords.length; i < wordCount; i++) {
         generatedWords.push(words[Math.floor(Math.random() * words.length)]);
     }
     
-    generatedWords.sort(() => Math.random() - 0.5); // Shuffle words
+    generatedWords.sort(() => Math.random() - 0.5);
 
     let text = generatedWords.join(' ');
 
     if (difficulty === 'medium' || difficulty === 'hard') {
-        // Add capitalization
         text = text.split('. ').map(sentence => sentence.charAt(0).toUpperCase() + sentence.slice(1)).join('. ');
         text = text.charAt(0).toUpperCase() + text.slice(1);
     }
     
     if (difficulty === 'hard') {
-        // Add more punctuation
         for (let i = 0; i < 5; i++) {
             const wordIndex = Math.floor(Math.random() * (generatedWords.length -1));
             const punctuation = PUNCTUATION[Math.floor(Math.random() * PUNCTUATION.length)];
             generatedWords[wordIndex] += punctuation;
         }
         
-        // Add rare words and symbols
         const rareWordIndex = Math.floor(Math.random() * (generatedWords.length - 1));
         generatedWords.splice(rareWordIndex, 1, RARE_WORDS[Math.floor(Math.random() * RARE_WORDS.length)]);
 
@@ -98,15 +116,33 @@ export function generatePracticeText(difficulty: Difficulty, userStats: UserStat
         text = generatedWords.join(' ');
     }
     
-    // Adjust length based on difficulty
     const sentenceTarget = difficulty === 'easy' ? 2 : (difficulty === 'medium' ? 3 : 4);
     text = text.split('. ').slice(0, sentenceTarget).join('. ') || text;
     
-    return text.slice(0, 300); // Limit text length
+    return text.slice(0, 300);
 }
 
+function isSameDay(ts1: number, ts2: number): boolean {
+    const d1 = new Date(ts1);
+    const d2 = new Date(ts2);
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+}
+
+function isNextDay(ts1: number, ts2: number): boolean {
+    const d1 = new Date(ts1);
+    const d2 = new Date(ts2);
+    const d1_tomorrow = new Date(d1);
+    d1_tomorrow.setDate(d1.getDate() + 1);
+    return d1_tomorrow.getFullYear() === d2.getFullYear() &&
+           d1_tomorrow.getMonth() === d2.getMonth() &&
+           d1_tomorrow.getDate() === d2.getDate();
+}
+
+
 export function analyzeSession(result: TestResult, oldStats: UserStats): UserStats {
-    const newStats: UserStats = JSON.parse(JSON.stringify(oldStats)); // Deep copy
+    const newStats: UserStats = JSON.parse(JSON.stringify(oldStats));
 
     newStats.sessions.push(result);
     if(newStats.sessions.length > 50) { // Keep last 50 sessions
@@ -116,9 +152,36 @@ export function analyzeSession(result: TestResult, oldStats: UserStats): UserSta
     newStats.totalTests += 1;
     newStats.totalTimeTyping += result.time;
 
+    // GAMIFICATION
+    // XP & Level
+    const xpGained = Math.round((result.wpm * (result.accuracy / 100)) * (result.time / 60));
+    newStats.xp += xpGained;
+    let xpForNext = getXpForNextLevel(newStats.level);
+    while (newStats.xp >= xpForNext) {
+        newStats.level += 1;
+        newStats.xp -= xpForNext;
+        xpForNext = getXpForNextLevel(newStats.level);
+    }
+    
+    // Streaks
+    if (newStats.lastSessionTimestamp) {
+        if (!isSameDay(newStats.lastSessionTimestamp, result.timestamp)) {
+            if (isNextDay(newStats.lastSessionTimestamp, result.timestamp)) {
+                newStats.currentStreak += 1;
+            } else {
+                newStats.currentStreak = 1;
+            }
+        }
+    } else {
+        newStats.currentStreak = 1;
+    }
+    newStats.longestStreak = Math.max(newStats.longestStreak, newStats.currentStreak);
+    newStats.lastSessionTimestamp = result.timestamp;
+
+    // ANALYTICS
     for (const log of result.charLogs) {
         const char = log.char.toLowerCase();
-        if (!char) continue;
+        if (!char || char === ' ') continue;
 
         if (!newStats.charStats[char]) {
             newStats.charStats[char] = { char: char, errors: 0, totalTime: 0, count: 0, avgTime: 0, errorRate: 0 };
@@ -156,11 +219,22 @@ export function analyzeSession(result: TestResult, oldStats: UserStats): UserSta
         }
     }
 
+    const recentSessions = newStats.sessions.slice(-10);
     const totalWpm = newStats.sessions.reduce((sum, s) => sum + s.wpm, 0);
     newStats.overallWpm = newStats.sessions.length > 0 ? totalWpm / newStats.sessions.length : 0;
 
     const totalAccuracy = newStats.sessions.reduce((sum, s) => sum + s.accuracy, 0);
     newStats.overallAccuracy = newStats.sessions.length > 0 ? totalAccuracy / newStats.sessions.length : 100;
+    
+    // Consistency
+    if (recentSessions.length > 1) {
+        const wpmValues = recentSessions.map(s => s.wpm);
+        const meanWpm = wpmValues.reduce((a, b) => a + b, 0) / wpmValues.length;
+        const stdDev = Math.sqrt(wpmValues.map(w => Math.pow(w - meanWpm, 2)).reduce((a, b) => a + b, 0) / wpmValues.length);
+        newStats.consistency = meanWpm > 0 ? Math.max(0, 100 - (stdDev / meanWpm) * 100) : 0;
+    } else {
+        newStats.consistency = 100;
+    }
 
     return newStats;
 }

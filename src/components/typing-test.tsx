@@ -83,6 +83,7 @@ export default function TypingTest() {
       errors,
       time: testDuration,
       charLogs,
+      timestamp: Date.now(),
     };
     setResult(finalResult);
     saveTestResult(finalResult);

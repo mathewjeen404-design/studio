@@ -4,19 +4,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AtSign, BarChart, CheckCircle, Clock, Zap } from 'lucide-react';
+import { BarChart, CheckCircle, Flame, Gauge, Gem, Star } from 'lucide-react';
 import { useTypingStats } from '@/hooks/use-typing-stats';
-import { getDifficulty } from '@/lib/intelligence';
+import { getXpForNextLevel, getTypingPersonality } from '@/lib/intelligence';
 import { Button } from '../ui/button';
+import { Progress } from '../ui/progress';
 
 export function ProfileCard() {
   const { stats, resetStats } = useTypingStats();
-  const { overallWpm, overallAccuracy, totalTimeTyping, totalTests } = stats;
+  const { 
+    overallWpm, 
+    overallAccuracy, 
+    totalTests, 
+    level, 
+    xp, 
+    consistency, 
+    currentStreak, 
+    longestStreak 
+  } = stats;
 
-  const bestWpm = Math.max(0, ...stats.sessions.map(s => s.wpm));
-  const totalWordsTyped = Math.round(stats.sessions.reduce((acc, s) => acc + (s.rawWpm * (s.time/60)), 0));
-
-  const difficulty = getDifficulty(overallWpm, overallAccuracy);
+  const xpForNext = getXpForNextLevel(level);
+  const xpProgress = (xp / xpForNext) * 100;
+  const personality = getTypingPersonality(stats);
 
   return (
     <Card>
@@ -30,50 +39,67 @@ export function ProfileCard() {
         </Avatar>
         <CardTitle className="font-headline text-2xl">Typing Enthusiast</CardTitle>
         <CardDescription>
-            {totalTests > 10 ? 'Seasoned Typist' : 'Newcomer'}
+            {personality}
         </CardDescription>
         <div className="flex gap-2 pt-2">
-          <Badge variant="secondary" className="capitalize">{difficulty}</Badge>
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Gem size={12} /> Level {level}
+          </Badge>
           <Badge variant="outline">Tests: {totalTests}</Badge>
         </div>
       </CardHeader>
       <CardContent>
+        <div>
+            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>XP</span>
+                <span>{xp.toFixed(0)} / {xpForNext}</span>
+            </div>
+          <Progress value={xpProgress} className="h-2" />
+        </div>
+        
         <Separator className="my-4" />
-        <div className="space-y-4 text-sm">
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <Zap size={16} /> Best WPM
-            </span>
-            <span className="font-medium text-primary">{bestWpm.toFixed(0)}</span>
+        
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <Flame className="text-destructive" />
+            <div>
+              <div className="font-medium">{currentStreak} Days</div>
+              <div className="text-muted-foreground text-xs">Current Streak</div>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <BarChart size={16} /> Average WPM
-            </span>
-            <span className="font-medium text-primary">{overallWpm.toFixed(0)}</span>
+          <div className="flex items-center gap-2">
+            <Star className="text-accent" />
+            <div>
+              <div className="font-medium">{longestStreak} Days</div>
+              <div className="text-muted-foreground text-xs">Longest Streak</div>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <CheckCircle size={16} /> Average Accuracy
-            </span>
-            <span className="font-medium">{overallAccuracy.toFixed(1)}%</span>
+          <div className="flex items-center gap-2">
+            <BarChart className="text-primary" />
+            <div>
+              <div className="font-medium">{overallWpm.toFixed(0)} WPM</div>
+              <div className="text-muted-foreground text-xs">Average Speed</div>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <Clock size={16} /> Total Time Typing
-            </span>
-            <span className="font-medium">{(totalTimeTyping / 3600).toFixed(1)} hours</span>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="text-green-500" />
+            <div>
+              <div className="font-medium">{overallAccuracy.toFixed(1)}%</div>
+              <div className="text-muted-foreground text-xs">Average Accuracy</div>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <AtSign size={16} /> Words Typed
-            </span>
-            <span className="font-medium">{totalWordsTyped}</span>
+           <div className="flex items-center gap-2">
+            <Gauge className="text-blue-500" />
+            <div>
+              <div className="font-medium">{consistency.toFixed(0)}%</div>
+              <div className="text-muted-foreground text-xs">Consistency</div>
+            </div>
           </div>
         </div>
+
          <Separator className="my-4" />
         <Button onClick={resetStats} variant="destructive" className="w-full">
-            Reset All My Stats
+            Reset Stats
         </Button>
       </CardContent>
     </Card>

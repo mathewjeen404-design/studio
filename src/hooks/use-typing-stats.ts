@@ -35,8 +35,11 @@ export function useTypingStats() {
     }, [setStats]);
 
     const resetStats = useCallback(() => {
-        setStats(DEFAULT_STATS);
-    }, [setStats]);
+        // Keep unlockedLevel, reset everything else
+        const currentUnlockedLevel = stats.unlockedLevel;
+        const freshStats = { ...DEFAULT_STATS, unlockedLevel: currentUnlockedLevel };
+        setStats(freshStats);
+    }, [setStats, stats.unlockedLevel]);
 
     return { stats, difficulty, getNewTestText, saveTestResult, resetStats, completeLevel };
 }

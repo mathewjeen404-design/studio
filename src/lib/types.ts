@@ -13,6 +13,7 @@ export interface TestResult {
   errors: number;
   time: number;
   charLogs: CharLog[];
+  timestamp: number;
 }
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -48,4 +49,11 @@ export interface UserStats {
   totalTests: number;
   totalTimeTyping: number; // in seconds
   unlockedLevel: number;
+  // Gamification
+  xp: number;
+  level: number;
+  consistency: number; // 0-100 score
+  currentStreak: number;
+  longestStreak: number;
+  lastSessionTimestamp: number | null;
 }
