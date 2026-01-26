@@ -12,7 +12,7 @@ const keyLayout = [
   ['ControlLeft', 'AltLeft', 'Space', 'AltRight', 'ControlRight'],
 ];
 
-const keyDisplayMap: { [key: string]: string } = {
+export const keyDisplayMap: { [key: string]: string } = {
   Backquote: '`', Digit1: '1', Digit2: '2', Digit3: '3', Digit4: '4', Digit5: '5', Digit6: '6', Digit7: '7', Digit8: '8', Digit9: '9', Digit0: '0', Minus: '-', Equal: '=', Backspace: 'Backspace',
   Tab: 'Tab', KeyQ: 'Q', KeyW: 'W', KeyE: 'E', KeyR: 'R', KeyT: 'T', KeyY: 'Y', KeyU: 'U', KeyI: 'I', KeyO: 'O', KeyP: 'P', BracketLeft: '[', BracketRight: ']', Backslash: '\\',
   CapsLock: 'Caps Lock', KeyA: 'A', KeyS: 'S', KeyD: 'D', KeyF: 'F', KeyG: 'G', KeyH: 'H', KeyJ: 'J', KeyK: 'K', KeyL: 'L', Semicolon: ';', Quote: '\'', Enter: 'Enter',
@@ -21,15 +21,15 @@ const keyDisplayMap: { [key: string]: string } = {
 };
 
 const FINGER_COLORS: { [key in FingerName]: string } = {
-    'left-pinky': 'bg-chart-1/10',
-    'left-ring': 'bg-chart-2/10',
-    'left-middle': 'bg-chart-3/10',
-    'left-index': 'bg-chart-4/10',
+    'left-pinky': 'bg-chart-1/10 text-chart-1',
+    'left-ring': 'bg-chart-2/10 text-chart-2',
+    'left-middle': 'bg-chart-3/10 text-chart-3',
+    'left-index': 'bg-chart-4/10 text-chart-4',
     'thumb': 'bg-muted/30',
-    'right-index': 'bg-chart-4/10',
-    'right-middle': 'bg-chart-3/10',
-    'right-ring': 'bg-chart-2/10',
-    'right-pinky': 'bg-chart-1/10',
+    'right-index': 'bg-chart-4/10 text-chart-4',
+    'right-middle': 'bg-chart-3/10 text-chart-3',
+    'right-ring': 'bg-chart-2/10 text-chart-2',
+    'right-pinky': 'bg-chart-1/10 text-chart-1',
 };
 
 
@@ -122,7 +122,8 @@ const Key = ({
   targetKey,
   fingerZones,
   className = '',
-  targetFinger
+  targetFinger,
+  heatmapColor,
 }: {
   keyCode: string;
   display: string;
@@ -132,12 +133,16 @@ const Key = ({
   fingerZones?: boolean;
   className?: string;
   targetFinger?: FingerName | null;
+  heatmapColor?: string;
 }) => {
   const isPressed = pressedKey === keyCode;
   const char = display.toLowerCase();
   
   const fingerInfo = KEY_TO_FINGER_MAP[char];
-  const fingerColor = fingerInfo && fingerZones ? FINGER_COLORS[fingerInfo.finger] : '';
+  let fingerColorClass = '';
+  if(fingerZones) {
+    fingerColorClass = fingerInfo ? FINGER_COLORS[fingerInfo.finger] : ''
+  }
   
   const isHighlight = highlightKeys?.includes(char);
   
@@ -152,17 +157,18 @@ const Key = ({
   return (
     <div
       className={cn(
-        'relative h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
+        'relative h-10 md:h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
         'border-primary/20',
-        fingerColor,
+        fingerColorClass,
         isHighlight && !isTarget && 'bg-accent/50 border-accent/70',
         isTarget && 'bg-accent text-accent-foreground scale-110 border-accent',
         isPressed ? 'translate-y-0.5 border-b-2 bg-primary text-primary-foreground' : 'hover:bg-primary/20',
         className
       )}
+      style={{ backgroundColor: heatmapColor }}
     >
       {homeRowFinger && <Finger finger={homeRowFinger} isHighlighted={!!isFingerHighlighted} />}
-      <span className={cn(homeRowFinger && 'mt-2')}>{display}</span>
+      <span className={cn('text-xs md:text-base', homeRowFinger && 'mt-2')}>{display}</span>
     </div>
   );
 };
@@ -171,24 +177,26 @@ export default function VirtualKeyboard({
     pressedKey, 
     highlightKeys,
     targetKey,
-    fingerZones = false
+    fingerZones = false,
+    keyColors
 }: { 
     pressedKey: string | null;
     highlightKeys?: string[];
     targetKey?: string | null;
     fingerZones?: boolean;
+    keyColors?: { [keyCode: string]: string };
 }) {
   const targetFinger: FingerName | null = targetKey ? KEY_TO_FINGER_MAP[targetKey.toLowerCase()]?.finger ?? null : null;
 
   return (
-    <div className="w-full max-w-4xl flex flex-col items-center gap-4">
-      <div className="w-full p-2 space-y-2 bg-card rounded-lg border">
+    <div className="w-full max-w-4xl flex flex-col items-center gap-1 md:gap-4">
+      <div className="w-full p-1 md:p-2 space-y-1 md:space-y-2 bg-card rounded-lg border">
         {keyLayout.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-2">
+          <div key={rowIndex} className="flex gap-1 md:gap-2">
             {row.map((keyCode) => {
               let className = 'flex-1';
               if (['Backspace', 'Tab', 'Enter', 'ShiftLeft', 'ShiftRight'].includes(keyCode)) className = 'flex-[1.5]';
-              if (keyCode === 'CapsLock') className = 'flex-[1.T]';
+              if (keyCode === 'CapsLock') className = 'flex-[1.8]';
               if (keyCode === 'Space') className = 'flex-[5]';
 
               return <Key 
@@ -201,6 +209,7 @@ export default function VirtualKeyboard({
                 fingerZones={fingerZones}
                 className={className} 
                 targetFinger={targetFinger}
+                heatmapColor={keyColors?.[keyCode]}
               />;
             })}
           </div>

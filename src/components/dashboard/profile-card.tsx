@@ -1,17 +1,22 @@
 'use client';
 
+import { useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { BarChart, CheckCircle, Flame, Gauge, Gem, Star, BatteryWarning } from 'lucide-react';
+import { BarChart, CheckCircle, Flame, Gauge, Gem, Star, BatteryWarning, Download, Upload } from 'lucide-react';
 import { useTypingStats } from '@/hooks/use-typing-stats';
 import { getXpForNextLevel, getTypingPersonality } from '@/lib/intelligence';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
+import { useToast } from '@/hooks/use-toast';
 
 export function ProfileCard() {
-  const { stats, resetStats } = useTypingStats();
+  const { stats, resetStats, importStats } = useTypingStats();
+  const { toast } = useToast();
+  const importInputRef = useRef<HTMLInputElement>(null);
+  
   const { 
     overallWpm, 
     overallAccuracy, 
@@ -27,6 +32,68 @@ export function ProfileCard() {
   const xpForNext = getXpForNextLevel(level);
   const xpProgress = (xp / xpForNext) * 100;
   const personality = getTypingPersonality(stats);
+
+  const handleExport = () => {
+    try {
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(stats, null, 2)
+      )}`;
+      const link = document.createElement("a");
+      link.href = jsonString;
+      const date = new Date().toISOString().slice(0, 10);
+      link.download = `typeverse-profile-${date}.json`;
+      link.click();
+      toast({
+          title: "Profile Exported",
+          description: "Your typing profile has been saved to your downloads.",
+      });
+    } catch (error) {
+       toast({
+            variant: "destructive",
+            title: "Export Failed",
+            description: "Could not export your profile.",
+        });
+    }
+  };
+
+  const handleImportClick = () => {
+    importInputRef.current?.click();
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result;
+        if (typeof text !== 'string') {
+            throw new Error("File is not a valid text file.");
+        }
+        const importedData = JSON.parse(text);
+        
+        if (importStats(importedData)) {
+            toast({
+                title: "Profile Imported Successfully!",
+                description: "Your progress has been restored.",
+            });
+        } else {
+             throw new Error("Invalid profile file format.");
+        }
+      } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Import Failed",
+            description: error instanceof Error ? error.message : "Could not import the profile.",
+        });
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input to allow importing the same file again
+    event.target.value = '';
+  };
+
 
   return (
     <Card>
@@ -106,9 +173,26 @@ export function ProfileCard() {
         </div>
 
          <Separator className="my-4" />
-        <Button onClick={resetStats} variant="destructive" className="w-full">
-            Reset Stats
-        </Button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+                <Button onClick={handleExport} variant="outline" className="w-full">
+                    <Download /> Export Profile
+                </Button>
+                <Button onClick={handleImportClick} variant="outline" className="w-full">
+                    <Upload /> Import Profile
+                </Button>
+                <input
+                    type="file"
+                    ref={importInputRef}
+                    onChange={handleImport}
+                    accept="application/json"
+                    className="hidden"
+                />
+            </div>
+            <Button onClick={resetStats} variant="destructive" className="w-full">
+                Reset Stats
+            </Button>
+        </div>
       </CardContent>
     </Card>
   );

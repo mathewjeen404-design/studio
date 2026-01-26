@@ -50,5 +50,15 @@ export function useTypingStats() {
         setStats(freshStats);
     }, [setStats, stats.unlockedLevel, stats.certifications]);
 
-    return { stats, difficulty, getNewTestText, saveTestResult, resetStats, completeLevel };
+    const importStats = useCallback((newStats: any): newStats is UserStats => {
+        // basic validation to ensure it looks like a stats object
+        if (newStats && typeof newStats.totalTests === 'number' && Array.isArray(newStats.sessions)) {
+            setStats(newStats as UserStats);
+            return true;
+        }
+        return false;
+    }, [setStats]);
+
+
+    return { stats, difficulty, getNewTestText, saveTestResult, resetStats, completeLevel, importStats };
 }

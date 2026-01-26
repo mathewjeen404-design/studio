@@ -7,8 +7,9 @@ import { HandPerformanceChart } from '@/components/dashboard/hand-performance-ch
 import { FingerPerformanceChart } from '@/components/dashboard/finger-performance-chart';
 import { MistypedKeysChart } from '@/components/dashboard/mistyped-keys-chart';
 import { AiCoachCard } from '@/components/dashboard/ai-coach-card';
-import { Activity, Fingerprint, Hand, Trophy, AlertCircle } from 'lucide-react';
+import { Activity, Fingerprint, Hand, Trophy, AlertCircle, Thermometer } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { KeyboardHeatmap } from '@/components/dashboard/keyboard-heatmap';
 
 export default function DashboardPage() {
   return (
@@ -45,6 +46,17 @@ export default function DashboardPage() {
                   <ProgressChart />
                 </CardContent>
               </Card>
+               <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Thermometer size={24} />
+                      <span>Error Rate Heatmap</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <KeyboardHeatmap />
+                  </CardContent>
+                </Card>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <Card>
                   <CardHeader>
