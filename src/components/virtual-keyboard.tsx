@@ -1,3 +1,4 @@
+
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { KEY_TO_FINGER_MAP } from '@/lib/key-map';
@@ -20,16 +21,29 @@ const keyDisplayMap: { [key: string]: string } = {
 };
 
 const FINGER_COLORS: { [key in FingerName]: string } = {
-    'left-pinky': 'bg-chart-1/20 border-chart-1/40',
-    'left-ring': 'bg-chart-2/20 border-chart-2/40',
-    'left-middle': 'bg-chart-3/20 border-chart-3/40',
-    'left-index': 'bg-chart-4/20 border-chart-4/40',
-    'thumb': 'bg-muted',
-    'right-index': 'bg-chart-4/20 border-chart-4/40',
-    'right-middle': 'bg-chart-3/20 border-chart-3/40',
-    'right-ring': 'bg-chart-2/20 border-chart-2/40',
-    'right-pinky': 'bg-chart-1/20 border-chart-1/40',
+    'left-pinky': 'bg-chart-1/10',
+    'left-ring': 'bg-chart-2/10',
+    'left-middle': 'bg-chart-3/10',
+    'left-index': 'bg-chart-4/10',
+    'thumb': 'bg-muted/30',
+    'right-index': 'bg-chart-4/10',
+    'right-middle': 'bg-chart-3/10',
+    'right-ring': 'bg-chart-2/10',
+    'right-pinky': 'bg-chart-1/10',
 };
+
+const FINGER_TIP_COLORS: { [key in FingerName]: string } = {
+    'left-pinky': 'bg-chart-1/70 border-chart-1',
+    'left-ring': 'bg-chart-2/70 border-chart-2',
+    'left-middle': 'bg-chart-3/70 border-chart-3',
+    'left-index': 'bg-chart-4/70 border-chart-4',
+    'thumb': 'bg-muted-foreground/40 border-muted-foreground',
+    'right-index': 'bg-chart-4/70 border-chart-4',
+    'right-middle': 'bg-chart-3/70 border-chart-3',
+    'right-ring': 'bg-chart-2/70 border-chart-2',
+    'right-pinky': 'bg-chart-1/70 border-chart-1',
+};
+
 
 const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
     'KeyA': 'left-pinky',
@@ -44,11 +58,11 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 }
 
 
-const FingerTip = ({ isHighlighted }: { isHighlighted: boolean}) => (
+const FingerTip = ({ finger, isHighlighted }: { finger: FingerName, isHighlighted: boolean}) => (
     <div className={cn(
-        "absolute -top-3 w-6 h-8 rounded-b-full",
-        "bg-card-foreground/10 border-2 border-card-foreground/20 transition-colors",
-        isHighlighted && "bg-accent/80 border-accent scale-110"
+        "absolute -top-3 w-6 h-8 rounded-b-full border-2 transition-all duration-100",
+        FINGER_TIP_COLORS[finger],
+        isHighlighted && "scale-110 border-accent/80 ring-2 ring-accent bg-accent/30"
     )} />
 )
 
@@ -85,23 +99,23 @@ const Key = ({
 
   const isTarget = (targetKey?.toLowerCase() === char) || isShiftTarget;
 
-  const showFinger = fingerZones && HOME_ROW_FINGERS[keyCode];
-  const isFingerHighlighted = showFinger && targetFinger === HOME_ROW_FINGERS[keyCode];
+  const homeRowFinger = fingerZones ? HOME_ROW_FINGERS[keyCode] : null;
+  const isFingerHighlighted = homeRowFinger && targetFinger === homeRowFinger;
 
   return (
     <div
       className={cn(
         'relative h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
         'border-primary/20',
-        fingerZones && fingerColor,
+        fingerColor,
         isHighlight && !isTarget && 'bg-accent/50 border-accent/70',
         isTarget && 'bg-accent text-accent-foreground scale-110 border-accent',
         isPressed ? 'translate-y-0.5 border-b-2 bg-primary text-primary-foreground' : 'hover:bg-primary/20',
         className
       )}
     >
-      {showFinger && <FingerTip isHighlighted={!!isFingerHighlighted} />}
-      <span className={cn(showFinger && 'mt-2')}>{display}</span>
+      {homeRowFinger && <FingerTip finger={homeRowFinger} isHighlighted={!!isFingerHighlighted} />}
+      <span className={cn(homeRowFinger && 'mt-2')}>{display}</span>
     </div>
   );
 };
