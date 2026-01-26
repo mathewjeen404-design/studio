@@ -213,7 +213,7 @@ export default function TypingTest() {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-primary': isCorrect,
+                'text-chart-1': isCorrect,
                 'text-destructive': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
                 'cursor': isCurrent,
