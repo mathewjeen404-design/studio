@@ -166,9 +166,9 @@ export function LessonView({ level }: LessonViewProps) {
                 </CardHeader>
                 <CardContent className='flex gap-4'>
                     <Button onClick={resetTest}>Try again</Button>
-                    <Link href="/lessons">
-                        <Button variant="outline">Back to Lessons</Button>
-                    </Link>
+                    <Button variant="outline" asChild>
+                        <Link href="/lessons">Back to Lessons</Link>
+                    </Button>
                 </CardContent>
             </Card>
         </div>

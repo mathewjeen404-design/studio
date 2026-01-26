@@ -2,7 +2,6 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { KEY_TO_FINGER_MAP } from '@/lib/key-map';
 import type { FingerName } from '@/lib/types';
-import { HandGuide } from './hand-guide';
 
 const keyLayout = [
   ['Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'Backspace'],
@@ -32,6 +31,28 @@ const FINGER_COLORS: { [key in FingerName]: string } = {
     'right-pinky': 'bg-chart-1/20 border-chart-1/40',
 };
 
+const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
+    'KeyA': 'left-pinky',
+    'KeyS': 'left-ring',
+    'KeyD': 'left-middle',
+    'KeyF': 'left-index',
+    'KeyJ': 'right-index',
+    'KeyK': 'right-middle',
+    'KeyL': 'right-ring',
+    'Semicolon': 'right-pinky',
+    'Space': 'thumb'
+}
+
+
+const FingerTip = ({ isHighlighted }: { isHighlighted: boolean}) => (
+    <div className={cn(
+        "absolute -top-3 w-6 h-8 rounded-b-full",
+        "bg-card-foreground/10 border-2 border-card-foreground/20 transition-colors",
+        isHighlighted && "bg-accent/80 border-accent scale-110"
+    )} />
+)
+
+
 const Key = ({
   keyCode,
   display,
@@ -40,6 +61,7 @@ const Key = ({
   targetKey,
   fingerZones,
   className = '',
+  targetFinger
 }: {
   keyCode: string;
   display: string;
@@ -48,6 +70,7 @@ const Key = ({
   targetKey?: string | null;
   fingerZones?: boolean;
   className?: string;
+  targetFinger?: FingerName | null;
 }) => {
   const isPressed = pressedKey === keyCode;
   const char = display.toLowerCase();
@@ -62,10 +85,13 @@ const Key = ({
 
   const isTarget = (targetKey?.toLowerCase() === char) || isShiftTarget;
 
+  const showFinger = fingerZones && HOME_ROW_FINGERS[keyCode];
+  const isFingerHighlighted = showFinger && targetFinger === HOME_ROW_FINGERS[keyCode];
+
   return (
     <div
       className={cn(
-        'h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
+        'relative h-12 flex items-center justify-center rounded-md border-b-4 bg-secondary text-secondary-foreground font-medium transition-all duration-75',
         'border-primary/20',
         fingerZones && fingerColor,
         isHighlight && !isTarget && 'bg-accent/50 border-accent/70',
@@ -74,7 +100,8 @@ const Key = ({
         className
       )}
     >
-      {display}
+      {showFinger && <FingerTip isHighlighted={!!isFingerHighlighted} />}
+      <span className={cn(showFinger && 'mt-2')}>{display}</span>
     </div>
   );
 };
@@ -94,7 +121,6 @@ export default function VirtualKeyboard({
 
   return (
     <div className="w-full max-w-4xl flex flex-col items-center gap-4">
-      {fingerZones && <HandGuide highlightFinger={targetFinger} />}
       <div className="w-full p-2 space-y-2 bg-card rounded-lg border">
         {keyLayout.map((row, rowIndex) => (
           <div key={rowIndex} className="flex gap-2">
@@ -113,6 +139,7 @@ export default function VirtualKeyboard({
                 targetKey={targetKey}
                 fingerZones={fingerZones}
                 className={className} 
+                targetFinger={targetFinger}
               />;
             })}
           </div>
