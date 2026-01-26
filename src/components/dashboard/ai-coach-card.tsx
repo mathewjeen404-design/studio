@@ -6,8 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTypingStats } from '@/hooks/use-typing-stats';
 import { Wand2, Loader2, RefreshCw } from 'lucide-react';
-import { getCoachingTip, CoachingInput, CoachingOutput } from '@/ai/flows/coach-flow';
+import { getCoachingTip } from '@/ai/flows/coach-flow';
 import { FINGERS } from '@/lib/intelligence';
+
+// Infer types from the server action
+type CoachingInput = Parameters<typeof getCoachingTip>[0];
+type CoachingOutput = Awaited<ReturnType<typeof getCoachingTip>>;
 
 export function AiCoachCard() {
   const { stats } = useTypingStats();

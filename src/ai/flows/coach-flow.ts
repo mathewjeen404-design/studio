@@ -17,13 +17,13 @@ const CoachingInputSchema = z.object({
   topMistypedKeys: z.array(z.string()).describe("The top 3-5 most frequently mistyped keys."),
   weakestFinger: z.string().describe("The name of the finger with the lowest performance (e.g., 'left-pinky')."),
 });
-export type CoachingInput = z.infer<typeof CoachingInputSchema>;
+type CoachingInput = z.infer<typeof CoachingInputSchema>;
 
 const CoachingOutputSchema = z.object({
   feedback: z.string().describe("A short, encouraging, and personalized paragraph of feedback for the user (2-3 sentences max). Address the user directly."),
   drill: z.string().describe("A custom-generated practice text (around 20-30 words) that specifically targets the user's weak keys and fingers. It should be a coherent sentence or two."),
 });
-export type CoachingOutput = z.infer<typeof CoachingOutputSchema>;
+type CoachingOutput = z.infer<typeof CoachingOutputSchema>;
 
 const coachingPrompt = ai.definePrompt({
     name: 'coachingPrompt',
