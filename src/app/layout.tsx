@@ -4,12 +4,12 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'TypeVerse',
-  description: 'Gamified typing practice for everyone.',
+  title: 'TypeHub',
+  description: 'The professional-grade platform to develop your typing skills.',
   manifest: '/manifest.json',
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: light)", color: "hsl(210, 40%, 98%)" },
+    { media: "(prefers-color-scheme: dark)", color: "hsl(215, 30%, 12%)" },
   ],
 };
 
@@ -37,7 +37,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <ThemeProvider defaultTheme="system" storageKey="typeverse-theme">
+        <ThemeProvider defaultTheme="system" storageKey="typehub-theme">
           {children}
           <Toaster />
         </ThemeProvider>

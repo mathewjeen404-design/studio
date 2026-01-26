@@ -30,7 +30,7 @@ export function OnboardingModal({ isOpen, onOpenChange }: OnboardingModalProps) 
       <DialogContent className="sm:max-w-[425px] p-0" onInteractOutside={(e) => e.preventDefault()}>
         <div className="p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-headline">Welcome to TypeVerse!</DialogTitle>
+            <DialogTitle className="text-2xl font-headline">Welcome to TypeHub!</DialogTitle>
             <DialogDescription>Let's personalize your typing journey. Just a couple of questions.</DialogDescription>
           </DialogHeader>
 

@@ -1,7 +1,7 @@
 'use client';
 import { useLocalStorage } from './use-local-storage';
 import { analyzeSession, DEFAULT_STATS as BASE_DEFAULT_STATS, generatePracticeText, getDifficulty } from '@/lib/intelligence';
-import type { UserStats } from '@/lib/types';
+import type { UserStats, TestResult } from '@/lib/types';
 import { useMemo, useCallback } from 'react';
 
 export const DEFAULT_STATS: UserStats = {

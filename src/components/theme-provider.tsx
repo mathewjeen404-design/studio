@@ -25,14 +25,18 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "typeverse-theme",
+  storageKey = "typehub-theme",
   ...props
 }: ThemeProviderProps) {
     const [theme, setThemeState] = React.useState<Theme>(() => {
         if (typeof window === 'undefined') {
             return defaultTheme;
         }
-        return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+        try {
+          return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+        } catch (e) {
+          return defaultTheme;
+        }
     });
 
   React.useEffect(() => {
@@ -60,8 +64,12 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (newTheme: Theme) => {
+      try {
         localStorage.setItem(storageKey, newTheme);
         setThemeState(newTheme);
+      } catch (e) {
+        console.error("Failed to set theme in localStorage", e);
+      }
     },
   }
 

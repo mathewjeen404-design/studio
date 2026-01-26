@@ -66,7 +66,7 @@ export interface UserStats {
     codeSpecialist: boolean;
   };
   fatigueIndex: number;
-  onboarding?: {
+  onboarding: {
     goal: 'speed' | 'accuracy' | 'balanced';
     level: 'beginner' | 'intermediate' | 'advanced';
     complete: boolean;

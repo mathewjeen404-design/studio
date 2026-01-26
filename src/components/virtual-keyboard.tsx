@@ -34,10 +34,10 @@ const HOME_ROW_FINGERS: {[key: string]: FingerName} = {
 }
 
 const fingerDimensions: { [key: string]: { w: number; h: number } } = {
-  pinky: { w: 20, h: 33 },
-  ring: { w: 23, h: 42 },
-  middle: { w: 25, h: 46 },
-  index: { w: 24, h: 44 },
+  pinky: { w: 18, h: 30 },
+  ring: { w: 20, h: 38 },
+  middle: { w: 22, h: 42 },
+  index: { w: 21, h: 40 },
   thumb: { w: 30, h: 28 },
 };
 

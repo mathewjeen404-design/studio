@@ -288,7 +288,7 @@ export default function TypingTest() {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-primary-foreground drop-shadow-[0_0_4px_hsl(var(--primary))]': isCorrect,
+                'text-success': isCorrect,
                 'text-destructive': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
               })}
