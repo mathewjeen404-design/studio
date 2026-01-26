@@ -20,6 +20,8 @@
     --accent-foreground: 38 95% 15%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+    --success: 152 69% 44%;
+    --success-foreground: 152 69% 95%;
     --border: 210 20% 88%;
     --input: 210 20% 92%;
     --ring: 205 90% 60%;
@@ -48,6 +50,8 @@
     --accent-foreground: 38 95% 15%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+    --success: 152 69% 44%;
+    --success-foreground: 152 69% 95%;
     --border: 210 15% 25%;
     --input: 210 15% 22%;
     --ring: 205 90% 60%;

@@ -25,7 +25,7 @@ export function CurriculumMap() {
               <div className="space-y-1">
                 <CardTitle className="text-xl flex items-center gap-3">
                   {isCompleted ? (
-                    <CheckCircle className="text-green-500" />
+                    <CheckCircle className="text-success" />
                   ) : !isUnlocked ? (
                     <Lock className="text-muted-foreground" />
                   ) : (

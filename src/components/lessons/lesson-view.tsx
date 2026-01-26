@@ -157,7 +157,7 @@ export function LessonView({ level }: LessonViewProps) {
     return (
         <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
             <ResultsCard result={result} onRestart={resetTest} />
-            <Card className={cn(passed ? 'bg-green-500/10 border-green-500/50' : 'bg-red-500/10 border-red-500/50')}>
+            <Card className={cn(passed ? 'bg-success/10 border-green-500/50' : 'bg-destructive/10 border-destructive/50')}>
                 <CardHeader>
                     <CardTitle>{passed ? 'Level Complete!' : 'Practice Again'}</CardTitle>
                     <CardDescription>
@@ -196,14 +196,13 @@ export function LessonView({ level }: LessonViewProps) {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-green-500': isCorrect,
-                'text-red-500': isIncorrect,
+                'text-success': isCorrect,
+                'text-destructive': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
-                'cursor': isCurrent,
               })}
             >
               {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-accent animate-pulse rounded-full" />}
-              {char === ' ' && isIncorrect ? <span className='bg-red-500/50 rounded-[3px]'>{char}</span> : char}
+              {char === ' ' && isIncorrect ? <span className='bg-destructive/50 rounded-[3px]'>{char}</span> : char}
             </span>
           );
         })}

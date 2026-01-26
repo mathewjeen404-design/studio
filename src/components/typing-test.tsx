@@ -222,19 +222,18 @@ export default function TypingTest() {
             <span
               key={index}
               className={cn('transition-colors duration-150', {
-                'text-green-500': isCorrect,
-                'text-red-500': isIncorrect,
+                'text-success': isCorrect,
+                'text-destructive': isIncorrect,
                 'text-muted-foreground/60': !isTyped,
-                'cursor': isCurrent,
               })}
             >
               {isCurrent && <span className="absolute -left-[1px] top-0 bottom-0 w-[2px] bg-accent animate-pulse rounded-full" />}
-              {char === ' ' && isIncorrect ? <span className='bg-red-500/50 rounded-[3px]'>{char}</span> : char}
+              {char === ' ' && isIncorrect ? <span className='bg-destructive/50 rounded-[3px]'>{char}</span> : char}
             </span>
           );
         })}
       </div>
-      <VirtualKeyboard pressedKey={pressedKey} />
+      <VirtualKeyboard pressedKey={pressedKey} fingerZones={true} targetKey={text[typed.length]} />
     </div>
   );
 }
