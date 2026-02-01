@@ -25,7 +25,7 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "typehub-theme",
+  storageKey = "typehit-theme",
   ...props
 }: ThemeProviderProps) {
     const [theme, setThemeState] = React.useState<Theme>(() => {

@@ -10,7 +10,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="font-medium underline underline-offset-4"
           >
-            TypeHub
+            TypeHit
           </a>
           . All rights reserved.
         </p>

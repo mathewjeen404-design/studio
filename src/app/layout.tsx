@@ -4,7 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'TypeHub',
+  title: 'TypeHit',
   description: 'The professional-grade platform to develop your typing skills.',
   manifest: '/manifest.json',
   themeColor: [
@@ -37,7 +37,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <ThemeProvider defaultTheme="system" storageKey="typehub-theme">
+        <ThemeProvider defaultTheme="system" storageKey="typehit-theme">
           {children}
           <Toaster />
         </ThemeProvider>
